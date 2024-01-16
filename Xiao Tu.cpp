@@ -749,11 +749,11 @@ int main()
                             delete[] jpg_arr;
                             jpg_ent.close();
 
-                            if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpfdr.jpg"))
+                            if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg"))
                             {
-                                std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpfdr.jpg");
+                                std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg");
                             }
-                            std::ofstream jpg_sal("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpfdr.jpg", std::ios::binary);
+                            std::ofstream jpg_sal("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg", std::ios::binary);
 
                             if (std::filesystem::exists(dcim_dir.path().string()))
                             {
@@ -765,7 +765,7 @@ int main()
                             delete[] ffd8ffd9;
                             jpg_sal.close();
 
-                            std::filesystem::rename("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpfdr.jpg", "C:/Users/" + n_usr + "/Desktop/gallerydir/" + dcim_dir.path().stem().string() + ".jpg");
+                            std::filesystem::rename("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg", "C:/Users/" + n_usr + "/Desktop/gallerydir/" + dcim_dir.path().stem().string() + ".jpg");
 
                             n++;
                             std::cout << dcim_dir.path().string() + "\n";

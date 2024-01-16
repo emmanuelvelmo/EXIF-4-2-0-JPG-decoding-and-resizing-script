@@ -65,7 +65,7 @@ int main()
 
                     for (i = 0; i < jpg_size; i++)
                     {
-                        if (jpg_reint[i] == 0xFF && jpg_reint[i + 1] == 0xC0 && jpg_reint[i + 2] == 0x00 && jpg_reint[i + 3] == 0x11 && jpg_reint[i + 4] == 0x08)
+                        if (jpg_reint[i] == 0xFF && jpg_reint[i + 1] == 0xC0 && jpg_reint[i + 2] == 0x00 && jpg_reint[i + 3] == 0x11)
                         {
                             m++;
 
@@ -76,10 +76,6 @@ int main()
                             }
                         }
                     }
-
-
-
-                    //CORRECCIONES ARRIBA
 
                     if (m == 2)
                     {
@@ -155,7 +151,7 @@ int main()
 
                                         while (true)
                                         {
-                                            if (jpg_reint[db2] == 0xFF && jpg_reint[db2 + 1] == 0xC0 && jpg_reint[db2 + 2] == 0x00 && jpg_reint[db2 + 3] == 0x11 && jpg_reint[db2 + 4] == 0x08)
+                                            if (jpg_reint[db2] == 0xFF && jpg_reint[db2 + 1] == 0xC0 && jpg_reint[db2 + 2] == 0x00 && jpg_reint[db2 + 3] == 0x11)
                                             {
                                                 db2--;
                                                 break;
@@ -167,6 +163,11 @@ int main()
                                         break;
                                     }
                                 }
+                            }
+
+                            if (m != 2)
+                            {
+                                break;
                             }
 
                             unsigned char lum_tb[64];
@@ -191,7 +192,7 @@ int main()
                             unsigned int c02;
                             for (c0 = 0; c0 < jpg_size; c0++)
                             {
-                                if (jpg_reint[c0] == 0xFF && jpg_reint[c0 + 1] == 0xC0 && jpg_reint[c0 + 2] == 0x00 && jpg_reint[c0 + 3] == 0x11 && jpg_reint[c0 + 4] == 0x08)
+                                if (jpg_reint[c0] == 0xFF && jpg_reint[c0 + 1] == 0xC0 && jpg_reint[c0 + 2] == 0x00 && jpg_reint[c0 + 3] == 0x11)
                                 {
                                     m++;
 
@@ -248,6 +249,11 @@ int main()
                                         break;
                                     }
                                 }
+                            }
+
+                            if (m != 2)
+                            {
+                                break;
                             }
 
                             unsigned char dht_00[16];
@@ -388,6 +394,11 @@ int main()
                                 }
                             }
 
+                            if (m != 2)
+                            {
+                                break;
+                            }
+
                             unsigned char comp_y[2] = { jpg_reint[da + 5], jpg_reint[da + 6] };
                             unsigned char comp_cb[2] = { jpg_reint[da + 7], jpg_reint[da + 8] };
                             unsigned char comp_cr[2] = { jpg_reint[da + 9], jpg_reint[da + 10] };
@@ -487,7 +498,8 @@ int main()
                                 ancho_fin = 1080, ancho_fin = 1920;
                             }
 
-                            std::optional<float> rgb_salida[ancho_fin * alto_fin * 3];
+                            //std::optional<float> rgb_salida[ancho_fin * alto_fin * 3];
+                            std::optional<float> rgb_salida[1920 * 1920 * 3];
 
                             if (!(ancho_aj == 1920.0f && alto_aj == 1080.0f || ancho_aj == 1080.0f && alto_aj == 1920.0f))
                             {
@@ -695,8 +707,8 @@ int main()
                                 ffd8ffd9[i] = d8e0[i];
                             }
 
-                            ffd8ffd9[-1 + 20 + db2 + 1 - db + c02 + 1 - c0 + c42 + 1 - c4 + da2 + 1 - da + 1] = 0xFF;
-                            ffd8ffd9[-1 + 20 + db2 + 1 - db + c02 + 1 - c0 + c42 + 1 - c4 + da2 + 1 - da + 2] = 0xD9;
+                            ffd8ffd9[24 + db2 - db + c02 - c0 + c42 - c4 + da2 - da] = 0xFF;
+                            ffd8ffd9[25 + db2 - db + c02 - c0 + c42 - c4 + da2 - da] = 0xD9;
 
                             unsigned int db3 = db;
                             for (db3; db3 <= db2; db3++, i++)
@@ -748,7 +760,7 @@ int main()
                                 std::filesystem::remove(dcim_dir.path().string());
                             }
 
-                            jpg_sal.write(ffd8ffd9, 20 + db2 + 1 - db + c02 + 1 - c0 + c42 + 1 - c4 + da2 + 1 - da + 2);
+                            jpg_sal.write(ffd8ffd9, 26 + db2 - db + c02 - c0 + c42 - c4 + da2 - da);
 
                             delete[] ffd8ffd9;
                             jpg_sal.close();

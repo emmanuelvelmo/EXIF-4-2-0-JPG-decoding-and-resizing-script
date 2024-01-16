@@ -4,6 +4,7 @@
 #include<string>
 #include<functional>
 #include<cmath>
+#include<vector>
 #include<optional>
 #include<cstdlib>
 #include<Windows.h>
@@ -498,8 +499,7 @@ int main()
                                 ancho_fin = 1080, ancho_fin = 1920;
                             }
 
-                            //std::optional<float> rgb_salida[ancho_fin * alto_fin * 3];
-                            std::optional<float> rgb_salida[1920 * 1920 * 3];
+                            std::vector<std::optional<float>> rgb_salida(ancho_fin * alto_fin * 3);
 
                             if (!(ancho_aj == 1920.0f && alto_aj == 1080.0f || ancho_aj == 1080.0f && alto_aj == 1920.0f))
                             {

@@ -2,10 +2,11 @@
 #include<filesystem>
 #include<fstream>
 #include<string>
-#include<functional>
-#include<cmath>
 #include<vector>
+#include<functional>
 #include<optional>
+#include <bitset>
+#include<cmath>
 #include<cstdlib>
 #include<Windows.h>
 
@@ -187,6 +188,10 @@ int main()
                                     chr_tb[z_z[m]] = jpg_reint[db + 70 + m];
                                 }
                             }
+                            else
+                            {
+                                    break;
+                            }
 
                             m = 0;
                             unsigned int c0;
@@ -217,11 +222,12 @@ int main()
                                 }
                             }
 
-                            unsigned char pcsn_bit = jpg_reint[c0 + 2];
-                            unsigned char comp_img = jpg_reint[c0 + 7];
-                            unsigned char cuant_y_01[2] = { jpg_reint[c0 + 9], jpg_reint[c0 + 10] };
-                            unsigned char hor_cbcr_02[2] = { jpg_reint[c0 + 12], jpg_reint[c0 + 13] };
-                            unsigned char ver_cbcr_03[2] = { jpg_reint[c0 + 15], jpg_reint[c0 + 16] };
+                            //CONSIDERAR ELIMINAR
+                            //unsigned char pcsn_bit = jpg_reint[c0 + 2];
+                            //unsigned char comp_img = jpg_reint[c0 + 7];
+                            //unsigned char cuant_y_01[2] = { jpg_reint[c0 + 9], jpg_reint[c0 + 10] };
+                            //unsigned char hor_cbcr_02[2] = { jpg_reint[c0 + 12], jpg_reint[c0 + 13] };
+                            //unsigned char ver_cbcr_03[2] = { jpg_reint[c0 + 15], jpg_reint[c0 + 16] };
 
                             m = 0;
                             unsigned int c4;
@@ -400,32 +406,616 @@ int main()
                                 break;
                             }
 
-                            unsigned char comp_y[2] = { jpg_reint[da + 5], jpg_reint[da + 6] };
-                            unsigned char comp_cb[2] = { jpg_reint[da + 7], jpg_reint[da + 8] };
-                            unsigned char comp_cr[2] = { jpg_reint[da + 9], jpg_reint[da + 10] };
-                            unsigned char ss = jpg_reint[da + 11];
-                            unsigned char se = jpg_reint[da + 12];
-                            unsigned char ah_ai = jpg_reint[da + 13];
+                            //CONSIDERAR ELIMINAR
+                            //unsigned char comp_y[2] = { jpg_reint[da + 5], jpg_reint[da + 6] };
+                            //unsigned char comp_cb[2] = { jpg_reint[da + 7], jpg_reint[da + 8] };
+                            //unsigned char comp_cr[2] = { jpg_reint[da + 9], jpg_reint[da + 10] };
+                            //unsigned char ss = jpg_reint[da + 11];
+                            //unsigned char se = jpg_reint[da + 12];
+                            //unsigned char ah_ai = jpg_reint[da + 13];
                             
-                            //DECODIFICAR (Comenzar por Huffman - FFDA)
+                            std::function<std::string* (unsigned char(&)[16], unsigned short&)> generar_canonicos = [](unsigned char(&dht2)[16], unsigned short& tam_arr2) -> std::string*
+                            {
+                                unsigned short m = 0;
 
+                                for (unsigned int i = 0; i < 16; i++)
+                                {
+                                    tam_arr2 += dht2[i];
+                                }
 
+                                std::string* inst_codigos = new std::string[tam_arr2];
+                                std::string gen_codigo = "0";
 
+                                m = 0;
+                                for (unsigned int i = 0; i < 16; i++)
+                                {
+                                    for (unsigned short m2 = 0; m2 < dht2[i]; m2++)
+                                    {
+                                        inst_codigos[m++] = gen_codigo;
+
+                                        unsigned char ite_str = gen_codigo.size() - 1;
+                                        while (ite_str >= 0 && gen_codigo[ite_str] == '1')
+                                        {
+                                            gen_codigo[ite_str] = '0';
+                                            --ite_str;
+                                        }
+                                        if (ite_str >= 0)
+                                        {
+                                            gen_codigo[ite_str] = '1';
+                                        }
+                                    }
+
+                                    gen_codigo += "0";
+                                }
+
+                                return inst_codigos;
+                            };
+
+                            unsigned short tam_arr_00 = 0;
+                            std::string* codigos_canonicos_00 = generar_canonicos(dht_00, tam_arr_00);
+
+                            unsigned short tam_arr_01 = 0;
+                            std::string* codigos_canonicos_01 = generar_canonicos(dht_01, tam_arr_01);
+
+                            unsigned short tam_arr_10 = 0;
+                            std::string* codigos_canonicos_10 = generar_canonicos(dht_10, tam_arr_10);
+
+                            unsigned short tam_arr_11 = 0;
+                            std::string* codigos_canonicos_11 = generar_canonicos(dht_11, tam_arr_11);
+
+                            std::vector<float> ffda_buff;
+
+                            std::function<void()> decod_ffda = [&da, &da2, &jpg_reint, &ffda_buff, codigos_canonicos_00, &lum_dc_nod, tam_arr_00, codigos_canonicos_01, &chr_dc_nod, tam_arr_01, codigos_canonicos_10, &lum_ac_nod, tam_arr_10, codigos_canonicos_11, &chr_ac_nod, tam_arr_11, &lum_tb, &chr_tb]()
+                            {
+                                unsigned short num_ceros = 0;
+                                unsigned short nbits_cdos = 0;
+
+                                std::function<void(unsigned short, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
+                                {
+                                    if (cont_dcac >= 0 && cont_dcac <= 255)
+                                    {
+                                        for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
+                                        {
+                                            ffda_buff[ffda_buff.size() - 64 + iter_tb] *= lum_tb[iter_tb];
+                                        }
+                                    }
+
+                                    if (cont_dcac >= 256 && cont_dcac <= 383)
+                                    {
+                                        for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
+                                        {
+                                            ffda_buff[ffda_buff.size() - 64 + iter_tb] *= chr_tb[iter_tb];
+                                        }
+                                    }
+                                };
+
+                                std::function<void()> f_idct = [&ffda_buff]()
+                                {
+                                    float m0 = 2.0 * std::cos(1.0 / 16.0 * 2.0 * 3.141592);
+                                    float m1 = 2.0 * std::cos(2.0 / 16.0 * 2.0 * 3.141592);
+                                    float m3 = 2.0 * std::cos(2.0 / 16.0 * 2.0 * 3.141592);
+                                    float m5 = 2.0 * std::cos(3.0 / 16.0 * 2.0 * 3.141592);
+                                    float m2 = m0 - m5;
+                                    float m4 = m0 + m5;
+
+                                    float s0 = std::cos(0.0 / 16.0 * 3.141592) / std::sqrt(8);
+                                    float s1 = std::cos(1.0 / 16.0 * 3.141592) / 2.0;
+                                    float s2 = std::cos(2.0 / 16.0 * 3.141592) / 2.0;
+                                    float s3 = std::cos(3.0 / 16.0 * 3.141592) / 2.0;
+                                    float s4 = std::cos(4.0 / 16.0 * 3.141592) / 2.0;
+                                    float s5 = std::cos(5.0 / 16.0 * 3.141592) / 2.0;
+                                    float s6 = std::cos(6.0 / 16.0 * 3.141592) / 2.0;
+                                    float s7 = std::cos(7.0 / 16.0 * 3.141592) / 2.0;
+
+                                    for (unsigned short iter_idct = 0; iter_idct < 8; iter_idct++)
+                                    {
+                                        float g0 = ffda_buff[(ffda_buff.size() - 64) + (0 * 8 + iter_idct)] * s0;
+                                        float g1 = ffda_buff[(ffda_buff.size() - 64) + (4 * 8 + iter_idct)] * s4;
+                                        float g2 = ffda_buff[(ffda_buff.size() - 64) + (2 * 8 + iter_idct)] * s2;
+                                        float g3 = ffda_buff[(ffda_buff.size() - 64) + (6 * 8 + iter_idct)] * s6;
+                                        float g4 = ffda_buff[(ffda_buff.size() - 64) + (5 * 8 + iter_idct)] * s5;
+                                        float g5 = ffda_buff[(ffda_buff.size() - 64) + (1 * 8 + iter_idct)] * s1;
+                                        float g6 = ffda_buff[(ffda_buff.size() - 64) + (7 * 8 + iter_idct)] * s7;
+                                        float g7 = ffda_buff[(ffda_buff.size() - 64) + (3 * 8 + iter_idct)] * s3;
+
+                                        float f0 = g0;
+                                        float f1 = g1;
+                                        float f2 = g2;
+                                        float f3 = g3;
+                                        float f4 = g4 - g7;
+                                        float f5 = g5 + g6;
+                                        float f6 = g5 - g6;
+                                        float f7 = g4 + g7;
+
+                                        float e0 = f0;
+                                        float e1 = f1;
+                                        float e2 = f2 - f3;
+                                        float e3 = f2 + f3;
+                                        float e4 = f4;
+                                        float e5 = f5 - f7;
+                                        float e6 = f6;
+                                        float e7 = f5 + f7;
+                                        float e8 = f4 + f6;
+
+                                        float d0 = e0;
+                                        float d1 = e1;
+                                        float d2 = e2 * m1;
+                                        float d3 = e3;
+                                        float d4 = e4 * m2;
+                                        float d5 = e5 * m3;
+                                        float d6 = e6 * m4;
+                                        float d7 = e7;
+                                        float d8 = e8 * m5;
+
+                                        float c0 = d0 + d1;
+                                        float c1 = d0 - d1;
+                                        float c2 = d2 - d3;
+                                        float c3 = d3;
+                                        float c4 = d4 + d8;
+                                        float c5 = d5 + d7;
+                                        float c6 = d6 - d8;
+                                        float c7 = d7;
+                                        float c8 = c5 - c6;
+
+                                        float b0 = c0 + c3;
+                                        float b1 = c1 + c2;
+                                        float b2 = c1 - c2;
+                                        float b3 = c0 - c3;
+                                        float b4 = c4 - c8;
+                                        float b5 = c8;
+                                        float b6 = c6 - c7;
+                                        float b7 = c7;
+
+                                        ffda_buff[(ffda_buff.size() - 64) + (0 * 8 + iter_idct)] = b0 + b7;
+                                        ffda_buff[(ffda_buff.size() - 64) + (1 * 8 + iter_idct)] = b1 + b6;
+                                        ffda_buff[(ffda_buff.size() - 64) + (2 * 8 + iter_idct)] = b2 + b5;
+                                        ffda_buff[(ffda_buff.size() - 64) + (3 * 8 + iter_idct)] = b3 + b4;
+                                        ffda_buff[(ffda_buff.size() - 64) + (4 * 8 + iter_idct)] = b3 - b4;
+                                        ffda_buff[(ffda_buff.size() - 64) + (5 * 8 + iter_idct)] = b2 - b5;
+                                        ffda_buff[(ffda_buff.size() - 64) + (6 * 8 + iter_idct)] = b1 - b6;
+                                        ffda_buff[(ffda_buff.size() - 64) + (7 * 8 + iter_idct)] = b0 - b7;
+                                    }
+
+                                    for (unsigned short iter_idct2 = 0; iter_idct2 < 8; iter_idct2++)
+                                    {
+                                        float g0 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] * s0;
+                                        float g1 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] * s4;
+                                        float g2 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] * s2;
+                                        float g3 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] * s6;
+                                        float g4 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] * s5;
+                                        float g5 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] * s1;
+                                        float g6 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] * s7;
+                                        float g7 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] * s3;
+
+                                        float f0 = g0;
+                                        float f1 = g1;
+                                        float f2 = g2;
+                                        float f3 = g3;
+                                        float f4 = g4 - g7;
+                                        float f5 = g5 + g6;
+                                        float f6 = g5 - g6;
+                                        float f7 = g4 + g7;
+
+                                        float e0 = f0;
+                                        float e1 = f1;
+                                        float e2 = f2 - f3;
+                                        float e3 = f2 + f3;
+                                        float e4 = f4;
+                                        float e5 = f5 - f7;
+                                        float e6 = f6;
+                                        float e7 = f5 + f7;
+                                        float e8 = f4 + f6;
+
+                                        float d0 = e0;
+                                        float d1 = e1;
+                                        float d2 = e2 * m1;
+                                        float d3 = e3;
+                                        float d4 = e4 * m2;
+                                        float d5 = e5 * m3;
+                                        float d6 = e6 * m4;
+                                        float d7 = e7;
+                                        float d8 = e8 * m5;
+
+                                        float c0 = d0 + d1;
+                                        float c1 = d0 - d1;
+                                        float c2 = d2 - d3;
+                                        float c3 = d3;
+                                        float c4 = d4 + d8;
+                                        float c5 = d5 + d7;
+                                        float c6 = d6 - d8;
+                                        float c7 = d7;
+                                        float c8 = c5 - c6;
+
+                                        float b0 = c0 + c3;
+                                        float b1 = c1 + c2;
+                                        float b2 = c1 - c2;
+                                        float b3 = c0 - c3;
+                                        float b4 = c4 - c8;
+                                        float b5 = c8;
+                                        float b6 = c6 - c7;
+                                        float b7 = c7;
+
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] = std::round(b0 + b7);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] = std::round(b1 + b6);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] = std::round(b2 + b5);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] = std::round(b3 + b4);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] = std::round(b3 - b4);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] = std::round(b2 - b5);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] = std::round(b1 - b6);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] = std::round(b0 - b7);
+                                    }
+                                };
+
+                                std::function<void()> i_zig_zag = [&ffda_buff]()
+                                {
+                                    unsigned short i_z_z[64] = { 0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63 };
+                                    short tb_dc_ac[64];
+
+                                    for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
+                                    {
+                                        tb_dc_ac[iter_tb] = ffda_buff[ffda_buff.size() - 64 + i_z_z[iter_tb]];
+                                    }
+
+                                    for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
+                                    {
+                                        ffda_buff[ffda_buff.size() - 64 + iter_tb] = tb_dc_ac[iter_tb];
+                                    }
+                                };
+
+                                std::function<short(std::string)> complemento_dos = [](std::string buff_canonico2) -> short
+                                {
+                                    bool eval_neg = false;
+
+                                    if (buff_canonico2[0] == '0')
+                                    {
+                                        eval_neg = true;
+
+                                        for (unsigned short iter_buff = 0; iter_buff < buff_canonico2.size(); iter_buff++)
+                                        {
+                                            if (buff_canonico2[iter_buff] == '0')
+                                            {
+                                                buff_canonico2[iter_buff] = '1';
+                                            }
+                                            else
+                                            {
+                                                buff_canonico2[iter_buff] = '0';
+                                            }
+                                        }
+                                    }
+
+                                    std::bitset<16> conv_decimal(buff_canonico2);
+
+                                    if (eval_neg == true)
+                                    {
+                                        return conv_decimal.to_ulong() * -1;
+                                    }
+                                    else
+                                    {
+                                        return conv_decimal.to_ulong();
+                                    }
+                                };
+
+                                std::function<void(unsigned char)> sep_digs = [&num_ceros, &nbits_cdos](unsigned char byte_char)
+                                {
+                                    bool bit_eval;
+                                    std::string buff_bit_4;
+
+                                    for (short iter_bit = 7; iter_bit >= 4; iter_bit--)
+                                    {
+                                        bit_eval = byte_char & (1 << iter_bit);
+                                        buff_bit_4.push_back(bit_eval ? '1' : '0');
+
+                                        if (iter_bit == 4)
+                                        {
+                                            std::bitset<4> conv_bit_4(buff_bit_4);
+                                            buff_bit_4.clear();
+                                            num_ceros = conv_bit_4.to_ulong();
+                                        }
+                                    }
+
+                                    for (short iter_bit = 3; iter_bit >= 0; iter_bit--)
+                                    {
+                                        bit_eval = byte_char & (1 << iter_bit);
+                                        buff_bit_4.push_back(bit_eval ? '1' : '0');
+
+                                        if (iter_bit == 0)
+                                        {
+                                            std::bitset<4> conv_bit_4(buff_bit_4);
+                                            buff_bit_4.clear();
+                                            nbits_cdos = conv_bit_4.to_ulong();
+                                        }
+                                    }
+
+                                    if (num_ceros == 15 && nbits_cdos == 0)
+                                    {
+                                        num_ceros = 16;
+                                    }
+                                };
+
+                                unsigned int da_2 = da;
+                                unsigned short cont_bit = 7;
+                                unsigned short cont_dcac = 0;
+                                bool bit_val = false;
+                                std::string buff_canonico;
+
+                                short cont_63 = 0;
+
+                                bool ev_comp_dos = false;
+                                unsigned short cont_nbits = 0;
+
+                                for (unsigned int iter_ffda = 0; iter_ffda < 8 * (da2 - da - 13); iter_ffda++)
+                                {
+                                    if (nbits_cdos > 0)
+                                    {
+                                        bool bit_val = jpg_reint[da_2 + 14] & (1 << cont_bit);
+                                        buff_canonico.push_back(bit_val ? '1' : '0');
+                                        cont_nbits++;
+
+                                        if (cont_nbits == nbits_cdos)
+                                        {
+                                            short val_decimal = complemento_dos(buff_canonico);
+
+                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192 || cont_dcac == 256 || cont_dcac == 320)
+                                            {
+                                                ffda_buff.push_back(val_decimal);
+                                            }
+
+                                            if (cont_dcac > 0 && cont_dcac < 64 || cont_dcac > 64 && cont_dcac < 128 || cont_dcac > 128 && cont_dcac < 192 || cont_dcac > 192 && cont_dcac < 256 || cont_dcac > 256 && cont_dcac < 320 || cont_dcac > 320 && cont_dcac < 384)
+                                            {
+                                                ffda_buff.push_back(val_decimal);
+
+                                                cont_63++;
+
+                                                if (cont_63 == 63)
+                                                {
+                                                    cont_63 = 0;
+
+                                                    i_zig_zag();
+                                                    f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                    f_idct();
+                                                }
+                                            }
+
+                                            buff_canonico.clear();
+                                            cont_nbits = 0;
+                                            nbits_cdos = 0;
+
+                                            cont_dcac++;
+                                        }
+
+                                        if (cont_bit == 0)
+                                        {
+                                            cont_bit = 7;
+                                            da_2++;
+                                        }
+                                        else
+                                        {
+                                            cont_bit--;
+                                        }
+
+                                        if (cont_bit == 7 && jpg_reint[da_2 + 13] == 0xFF && jpg_reint[da_2 + 14] == 0x00)
+                                        {
+                                            da_2++;
+                                            iter_ffda += 8;
+                                        }
+
+                                        if (cont_dcac == 384)
+                                        {
+                                            cont_dcac = 0;
+                                        }
+                                    }
+                                    else
+                                    {
+                                        bool bit_val = jpg_reint[da_2 + 14] & (1 << cont_bit);
+                                        buff_canonico.push_back(bit_val ? '1' : '0');
+
+                                        bool comprobar_buff = false;
+
+                                        if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192)
+                                        {
+                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_00; iter_dcac++)
+                                            {
+                                                if (buff_canonico == codigos_canonicos_00[iter_dcac])
+                                                {
+                                                    nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
+
+                                                    comprobar_buff = true;
+
+                                                    if (nbits_cdos == 0)
+                                                    {
+                                                        ev_comp_dos = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if (comprobar_buff == true)
+                                            {
+                                                buff_canonico.clear();
+                                            }
+                                        }
+
+                                        if (cont_dcac > 0 && cont_dcac < 64 || cont_dcac > 64 && cont_dcac < 128 || cont_dcac > 128 && cont_dcac < 192 || cont_dcac > 192 && cont_dcac < 256)
+                                        {
+                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_10; iter_dcac++)
+                                            {
+                                                if (buff_canonico == codigos_canonicos_10[iter_dcac])
+                                                {
+                                                    sep_digs(lum_ac_nod[iter_dcac]);
+
+                                                    if (num_ceros == 0 && nbits_cdos == 0)
+                                                    {
+                                                        for (cont_63; cont_63 < 63; cont_63++)
+                                                        {
+                                                            ffda_buff.push_back(0);
+
+                                                            cont_dcac++;
+                                                        }
+                                                    }
+
+                                                    if (num_ceros > 0)
+                                                    {
+                                                        for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
+                                                        {
+                                                            ffda_buff.push_back(0);
+
+                                                            cont_dcac++;
+                                                            cont_63++;
+                                                        }
+
+                                                        num_ceros = 0;
+                                                    }
+
+                                                    comprobar_buff = true;
+
+                                                    if (cont_63 == 63)
+                                                    {
+                                                        cont_63 = 0;
+
+                                                        i_zig_zag();
+                                                        f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                        f_idct();
+                                                    }
+                                                }
+                                            }
+
+                                            if (comprobar_buff == true)
+                                            {
+                                                buff_canonico.clear();
+                                            }
+                                        }
+
+                                        if (cont_dcac == 256 || cont_dcac == 320)
+                                        {
+                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_01; iter_dcac++)
+                                            {
+                                                if (buff_canonico == codigos_canonicos_01[iter_dcac])
+                                                {
+                                                    nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
+
+                                                    comprobar_buff = true;
+
+                                                    if (nbits_cdos == 0)
+                                                    {
+                                                        ev_comp_dos = true;
+                                                    }
+                                                }
+                                            }
+
+                                            if (comprobar_buff == true)
+                                            {
+                                                buff_canonico.clear();
+                                            }
+                                        }
+
+                                        if (cont_dcac > 256 && cont_dcac < 320 || cont_dcac > 320 && cont_dcac < 384)
+                                        {
+                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_11; iter_dcac++)
+                                            {
+                                                if (buff_canonico == codigos_canonicos_11[iter_dcac])
+                                                {
+                                                    sep_digs(chr_ac_nod[iter_dcac]);
+
+                                                    if (num_ceros == 0 && nbits_cdos == 0)
+                                                    {
+                                                        for (cont_63; cont_63 < 63; cont_63++)
+                                                        {
+                                                            ffda_buff.push_back(0);
+
+                                                            cont_dcac++;
+                                                        }
+                                                    }
+
+                                                    if (num_ceros > 0)
+                                                    {
+                                                        for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
+                                                        {
+                                                            ffda_buff.push_back(0);
+
+                                                            cont_dcac++;
+                                                            cont_63++;
+                                                        }
+
+                                                        num_ceros = 0;
+                                                    }
+
+                                                    comprobar_buff = true;
+
+                                                    if (cont_63 == 63)
+                                                    {
+                                                        cont_63 = 0;
+
+                                                        i_zig_zag();
+                                                        f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                        f_idct();
+                                                    }
+                                                }
+                                            }
+
+                                            if (comprobar_buff == true)
+                                            {
+                                                buff_canonico.clear();
+                                            }
+                                        }
+
+                                        if (ev_comp_dos == true)
+                                        {
+                                            short val_decimal = complemento_dos(buff_canonico);
+
+                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192 || cont_dcac == 256 || cont_dcac == 320)
+                                            {
+                                                ffda_buff.push_back(val_decimal);
+                                            }
+
+                                            ev_comp_dos = false;
+
+                                            cont_dcac++;
+                                        }
+
+                                        if (cont_bit == 0)
+                                        {
+                                            cont_bit = 7;
+                                            da_2++;
+                                        }
+                                        else
+                                        {
+                                            cont_bit--;
+                                        }
+
+                                        if (cont_bit == 7 && jpg_reint[da_2 + 13] == 0xFF && jpg_reint[da_2 + 14] == 0x00)
+                                        {
+                                            da_2++;
+                                            iter_ffda += 8;
+                                        }
+
+                                        if (cont_dcac == 384)
+                                        {
+                                            cont_dcac = 0;
+                                        }
+                                    }
+                                }
+                            };
+
+                            decod_ffda();
+
+                            delete[] codigos_canonicos_00;
+                            delete[] codigos_canonicos_01;
+                            delete[] codigos_canonicos_10;
+                            delete[] codigos_canonicos_11;
+                            delete[] jpg_arr;
+
+                            //SUBSAMPLING INVERSO
                             std::string rgb_no_aj;
-                            
-                            /*CONVERSIÓN DE COLOR*/
 
-                            /* YCbCr to RGB
-                            unsigned short conv_R = ((298.082 * [Y]) / 256) + ((408.583 * [Cr]) / 256) - (222.921)
-                            unsigned short conv_G = ((298.082 * [Y]) / 256) - ((100.29 * [Cb]) / 256) - ((208.120 * [Cr]) / 256) + (135.576)
-                            unsigned short conv_B = ((298.082 * [Y]) / 256) + ((516.412 * [Cb]) / 256) - (276.836)
-                            
-                            RGB to YCbCr
-                            unsigned short conv_Y = (16) + ((65.738 * [R]) / 256) + ((129.057 * [G]) / 256) + ((25.064 * [B]) / 256)
-                            unsigned short conv_Cb = (128) - ((37.945 * [R]) / 256) - ((74.494 * [G]) / 256) + ((112.439 * [B]) / 256)
-                            unsigned short conv_Cr = (128) + (112.439 * [R]) - ((94.154 * [G]) / 256) - ((18.285 * [B]) / 256) */
+                            //
 
+                            ffda_buff.clear();
 
+                            //CONVERSIÓN A RGB
+                            //float conv_R = ((298.082 * [Y]) / 256) + ((408.583 * [Cr]) / 256) - (222.921);
+                            //float conv_G = ((298.082 * [Y]) / 256) - ((100.29 * [Cb]) / 256) - ((208.120 * [Cr]) / 256) + (135.576);
+                            //float conv_B = ((298.082 * [Y]) / 256) + ((516.412 * [Cb]) / 256) - (276.836);
+
+                            //
 
                             if (jpg_reint[78] == 0x06)
                             {
@@ -694,10 +1284,14 @@ int main()
                             
                             //CODIFICAR
 
+                            //
 
+                            //RGB to YCbCr
+                            //unsigned short conv_Y = (16) + ((65.738 * [R]) / 256) + ((129.057 * [G]) / 256) + ((25.064 * [B]) / 256);
+                            //unsigned short conv_Cb = (128) - ((37.945 * [R]) / 256) - ((74.494 * [G]) / 256) + ((112.439 * [B]) / 256);
+                            //unsigned short conv_Cr = (128) + (112.439 * [R]) - ((94.154 * [G]) / 256) - ((18.285 * [B]) / 256);
 
                             //GUARDAR
-
                             char* ffd8ffd9 = new char[26 + db2 - db + c02 - c0 + c42 - c4 + da2 - da];
                             i = 0;
 

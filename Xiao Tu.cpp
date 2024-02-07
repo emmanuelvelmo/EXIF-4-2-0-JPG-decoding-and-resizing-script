@@ -413,12 +413,12 @@ int main()
                             //unsigned char ss = jpg_reint[da + 11];
                             //unsigned char se = jpg_reint[da + 12];
                             //unsigned char ah_ai = jpg_reint[da + 13];
-                            
-                            std::function<std::string* (unsigned char(&)[16], unsigned short&)> generar_canonicos = [](unsigned char(&dht2)[16], unsigned short& tam_arr2) -> std::string*
+
+                            std::function<std::string* (unsigned char(&)[16], unsigned short&)> generar_canonicos = [&i](unsigned char(&dht2)[16], unsigned short& tam_arr2) -> std::string*
                             {
                                 unsigned short m = 0;
 
-                                for (unsigned int i = 0; i < 16; i++)
+                                for (i = 0; i < 16; i++)
                                 {
                                     tam_arr2 += dht2[i];
                                 }
@@ -427,7 +427,7 @@ int main()
                                 std::string gen_codigo = "0";
 
                                 m = 0;
-                                for (unsigned int i = 0; i < 16; i++)
+                                for (i = 0; i < 16; i++)
                                 {
                                     for (unsigned short m2 = 0; m2 < dht2[i]; m2++)
                                     {
@@ -465,12 +465,12 @@ int main()
 
                             std::vector<float> ffda_buff;
 
-                            std::function<void()> decod_ffda = [&da, &da2, &jpg_reint, &ffda_buff, codigos_canonicos_00, &lum_dc_nod, tam_arr_00, codigos_canonicos_01, &chr_dc_nod, tam_arr_01, codigos_canonicos_10, &lum_ac_nod, tam_arr_10, codigos_canonicos_11, &chr_ac_nod, tam_arr_11, &lum_tb, &chr_tb]()
+                            std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11, &lum_tb, &chr_tb]()
                             {
                                 unsigned short num_ceros = 0;
                                 unsigned short nbits_cdos = 0;
 
-                                std::function<void(unsigned short, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
+                                std::function<void(unsigned short &, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short &cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
                                 {
                                     if (cont_dcac >= 0 && cont_dcac <= 255)
                                     {
@@ -635,14 +635,14 @@ int main()
                                         float b6 = c6 - c7;
                                         float b7 = c7;
 
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] = std::round(b0 + b7);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] = std::round(b1 + b6);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] = std::round(b2 + b5);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] = std::round(b3 + b4);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] = std::round(b3 - b4);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] = std::round(b2 - b5);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] = std::round(b1 - b6);
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] = std::round(b0 - b7);
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] = b0 + b7;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] = b1 + b6;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] = b2 + b5;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] = b3 + b4;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] = b3 - b4;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] = b2 - b5;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] = b1 - b6;
+                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] = b0 - b7;
                                     }
                                 };
 
@@ -743,7 +743,7 @@ int main()
                                 bool ev_comp_dos = false;
                                 unsigned short cont_nbits = 0;
 
-                                for (unsigned int iter_ffda = 0; iter_ffda < 8 * (da2 - da - 13); iter_ffda++)
+                                for (i = 0; i < 8 * (da2 - da - 13); i++)
                                 {
                                     if (nbits_cdos > 0)
                                     {
@@ -796,7 +796,7 @@ int main()
                                         if (cont_bit == 7 && jpg_reint[da_2 + 13] == 0xFF && jpg_reint[da_2 + 14] == 0x00)
                                         {
                                             da_2++;
-                                            iter_ffda += 8;
+                                            i += 8;
                                         }
 
                                         if (cont_dcac == 384)
@@ -984,7 +984,7 @@ int main()
                                         if (cont_bit == 7 && jpg_reint[da_2 + 13] == 0xFF && jpg_reint[da_2 + 14] == 0x00)
                                         {
                                             da_2++;
-                                            iter_ffda += 8;
+                                            i += 8;
                                         }
 
                                         if (cont_dcac == 384)
@@ -1004,9 +1004,119 @@ int main()
                             delete[] jpg_arr;
 
                             //SUBSAMPLING INVERSO
-                            std::string rgb_no_aj;
+                            std::vector<float> rgb_no_aj(ffda_buff.size() * 2);
+                            
+                            i = 0;
+                            i2 = 0;
 
-                            //
+                            std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_no_aj]()
+                            {
+                                if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
+                                {
+                                    rgb_no_aj[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) - 222.921;
+                                    rgb_no_aj[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) + 135.576;
+                                    rgb_no_aj[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - 276.836;
+                                }
+
+                                if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
+                                {
+                                    rgb_no_aj[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) - (222.921);
+                                    rgb_no_aj[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) + (135.576);
+                                    rgb_no_aj[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - 276.836;
+                                }
+
+                                i++;
+                            };
+
+                            /*std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_no_aj]()
+                            {
+                                if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
+                                {
+                                    rgb_no_aj[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
+                                    rgb_no_aj[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)];
+                                    rgb_no_aj[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)];
+                                }
+
+                                if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
+                                {
+                                    rgb_no_aj[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
+                                    rgb_no_aj[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8];
+                                    rgb_no_aj[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8];
+                                }
+
+                                float conv_R = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) + ((408.583 * rgb_no_aj[(i2 * 768) + i + 2]) / 256) - 222.921;
+                                float conv_G = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) - ((100.29 * rgb_no_aj[(i2 * 768) + i + 1]) / 256) - ((208.120 * rgb_no_aj[(i2 * 768) + i + 2]) / 256) + 135.576;
+                                float conv_B = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) + ((516.412 * rgb_no_aj[(i2 * 768) + i + 1]) / 256) - 276.836;
+
+                                rgb_no_aj[(i2 * 768) + i] = conv_R;
+                                rgb_no_aj[(i2 * 768) + i + 1] = conv_G;
+                                rgb_no_aj[(i2 * 768) + i + 2] = conv_B;
+
+                                i++;
+                            };*/
+
+                            for (unsigned int iter_no_aj = 0; iter_no_aj < rgb_no_aj.size() / 3; iter_no_aj++)
+                            {
+                                if (i >= 0 && i < 64)
+                                {
+                                    m = 0;
+                                    m2 = 256;
+
+                                    i_subsamp();
+                                }
+
+                                if (i >= 64 && i < 128)
+                                {
+                                    m = 64;
+                                    m2 = 264;
+
+                                    i_subsamp();
+                                }
+
+                                if (i >= 128 && i < 192)
+                                {
+                                    m = 128;
+                                    m2 = 296;
+
+                                    i_subsamp();
+                                }
+
+                                if (i >= 192 && i < 256)
+                                {
+                                    m = 192;
+                                    m2 = 304;
+
+                                    i_subsamp();
+                                }
+
+                                if (i == 256)
+                                {
+                                    i = 0;
+                                    i2++;
+                                }
+                            }
+
+
+
+
+
+                            unsigned short ancho_8;
+                            unsigned short alto_8;
+
+                            if ((ancho_in / 8.0f) - unsigned short(ancho_in / 8) > 0)
+                            {
+                                ancho_8 = (unsigned short(ancho_in / 8) + 1) * 8;
+                            }
+                            if ((alto_in / 8.0f) - unsigned short(alto_in / 8) > 0)
+                            {
+                                alto_8 = (unsigned short(alto_in / 8) + 1) * 8;
+                            }
+
+                            //for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                //for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+
+                            //std::ofstream jpg_sal("C:/Users/-/Desktop/x_0.jpg", std::ios::binary);
+                            //jpg_sal.write(ffda_byte.data(), ffda_byte.size());
 
                             ffda_buff.clear();
 
@@ -1019,7 +1129,7 @@ int main()
 
                             if (jpg_reint[78] == 0x06)
                             {
-                                std::string rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1035,7 +1145,7 @@ int main()
 
                             if (jpg_reint[78] == 0x03)
                             {
-                                std::string rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1051,7 +1161,7 @@ int main()
 
                             if (jpg_reint[78] == 0x08)
                             {
-                                std::string rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1274,9 +1384,9 @@ int main()
                                     }
                                 }
 
-                                for (unsigned int iter = 0; iter < (ancho_fin * alto_fin * 3); iter++)
+                                for (unsigned int iter_mtz = 0; iter_mtz < (ancho_fin * alto_fin * 3); iter_mtz++)
                                 {
-                                    rgb_salida[iter] = std::round(rgb_salida[iter].value());
+                                    rgb_salida[iter_mtz] = std::round(rgb_salida[iter_mtz].value());
                                 }
                             }
 
@@ -1293,10 +1403,9 @@ int main()
 
                             //GUARDAR
                             char* ffd8ffd9 = new char[26 + db2 - db + c02 - c0 + c42 - c4 + da2 - da];
-                            i = 0;
 
                             char d8e0[20] = { 0xFF,0xD8,0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,0x00,0xB4,0x00,0xB4,0x00,0x00 };
-                            for (i; i < 20; i++)
+                            for (i = 0; i < 20; i++)
                             {
                                 ffd8ffd9[i] = d8e0[i];
                             }

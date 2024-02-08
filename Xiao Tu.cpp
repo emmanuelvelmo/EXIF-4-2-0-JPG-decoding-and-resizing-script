@@ -32,6 +32,7 @@ int main()
             {
                 n++;
             }
+
             if (n == 1)
             {
                 break;
@@ -63,6 +64,8 @@ int main()
                     char* jpg_arr = new char[jpg_size];
                     jpg_ent.read(jpg_arr, jpg_size);
 
+                    jpg_ent.close();
+
                     unsigned char* jpg_reint = reinterpret_cast<unsigned char*>(jpg_arr);
 
                     for (i = 0; i < jpg_size; i++)
@@ -81,10 +84,10 @@ int main()
 
                     if (m == 2)
                     {
-                        float alto_in = jpg_reint[i] * 256.0f + jpg_reint[i + 1];
-                        float ancho_in = jpg_reint[i + 2] * 256.0f + jpg_reint[i + 3];
+                        float alto_in = jpg_reint[i] * 256 + jpg_reint[i + 1];
+                        float ancho_in = jpg_reint[i + 2] * 256 + jpg_reint[i + 3];
 
-                        if (ancho_in >= 1920 && alto_in > 1080 || ancho_in > 1920 && alto_in >= 1080 || ancho_in >= 1080 && alto_in > 1920 || ancho_in > 1080 && alto_in >= 1920)
+                        if (!(ancho_in == 1920 && alto_in == 1080 || ancho_in == 1080 && alto_in == 1920))
                         {
                             float ancho_aj, alto_aj, rel_lado;
 
@@ -221,13 +224,6 @@ int main()
                                     }
                                 }
                             }
-
-                            //CONSIDERAR ELIMINAR
-                            //unsigned char pcsn_bit = jpg_reint[c0 + 2];
-                            //unsigned char comp_img = jpg_reint[c0 + 7];
-                            //unsigned char cuant_y_01[2] = { jpg_reint[c0 + 9], jpg_reint[c0 + 10] };
-                            //unsigned char hor_cbcr_02[2] = { jpg_reint[c0 + 12], jpg_reint[c0 + 13] };
-                            //unsigned char ver_cbcr_03[2] = { jpg_reint[c0 + 15], jpg_reint[c0 + 16] };
 
                             m = 0;
                             unsigned int c4;
@@ -405,14 +401,6 @@ int main()
                             {
                                 break;
                             }
-
-                            //CONSIDERAR ELIMINAR
-                            //unsigned char comp_y[2] = { jpg_reint[da + 5], jpg_reint[da + 6] };
-                            //unsigned char comp_cb[2] = { jpg_reint[da + 7], jpg_reint[da + 8] };
-                            //unsigned char comp_cr[2] = { jpg_reint[da + 9], jpg_reint[da + 10] };
-                            //unsigned char ss = jpg_reint[da + 11];
-                            //unsigned char se = jpg_reint[da + 12];
-                            //unsigned char ah_ai = jpg_reint[da + 13];
 
                             std::function<std::string* (unsigned char(&)[16], unsigned short&)> generar_canonicos = [&i](unsigned char(&dht2)[16], unsigned short& tam_arr2) -> std::string*
                             {
@@ -1003,59 +991,58 @@ int main()
                             delete[] codigos_canonicos_11;
                             delete[] jpg_arr;
 
-                            //SUBSAMPLING INVERSO
-                            std::vector<float> rgb_no_aj(ffda_buff.size() * 2);
+                            std::vector<float> rgb_conv(ffda_buff.size() * 2);
                             
                             i = 0;
                             i2 = 0;
 
-                            std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_no_aj]()
+                            std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_conv]()
                             {
                                 if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
                                 {
-                                    rgb_no_aj[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) - 222.921;
-                                    rgb_no_aj[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) + 135.576;
-                                    rgb_no_aj[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - 276.836;
+                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) - 222.921;
+                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) + 135.576;
+                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - 276.836;
                                 }
 
                                 if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
                                 {
-                                    rgb_no_aj[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) - (222.921);
-                                    rgb_no_aj[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) + (135.576);
-                                    rgb_no_aj[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - 276.836;
+                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) - (222.921);
+                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) + (135.576);
+                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - 276.836;
                                 }
 
                                 i++;
                             };
 
-                            /*std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_no_aj]()
+                            /*std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_conv]()
                             {
                                 if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
                                 {
-                                    rgb_no_aj[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
-                                    rgb_no_aj[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)];
-                                    rgb_no_aj[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)];
+                                    rgb_conv[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
+                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)];
+                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)];
                                 }
 
                                 if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
                                 {
-                                    rgb_no_aj[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
-                                    rgb_no_aj[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8];
-                                    rgb_no_aj[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8];
+                                    rgb_conv[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
+                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8];
+                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8];
                                 }
 
-                                float conv_R = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) + ((408.583 * rgb_no_aj[(i2 * 768) + i + 2]) / 256) - 222.921;
-                                float conv_G = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) - ((100.29 * rgb_no_aj[(i2 * 768) + i + 1]) / 256) - ((208.120 * rgb_no_aj[(i2 * 768) + i + 2]) / 256) + 135.576;
-                                float conv_B = ((298.082 * rgb_no_aj[(i2 * 768) + i]) / 256) + ((516.412 * rgb_no_aj[(i2 * 768) + i + 1]) / 256) - 276.836;
+                                float conv_R = ((298.082 * rgb_conv[(i2 * 768) + i]) / 256) + ((408.583 * rgb_conv[(i2 * 768) + i + 2]) / 256) - 222.921;
+                                float conv_G = ((298.082 * rgb_conv[(i2 * 768) + i]) / 256) - ((100.29 * rgb_conv[(i2 * 768) + i + 1]) / 256) - ((208.120 * rgb_conv[(i2 * 768) + i + 2]) / 256) + 135.576;
+                                float conv_B = ((298.082 * rgb_conv[(i2 * 768) + i]) / 256) + ((516.412 * rgb_conv[(i2 * 768) + i + 1]) / 256) - 276.836;
 
-                                rgb_no_aj[(i2 * 768) + i] = conv_R;
-                                rgb_no_aj[(i2 * 768) + i + 1] = conv_G;
-                                rgb_no_aj[(i2 * 768) + i + 2] = conv_B;
+                                rgb_conv[(i2 * 768) + i] = conv_R;
+                                rgb_conv[(i2 * 768) + i + 1] = conv_G;
+                                rgb_conv[(i2 * 768) + i + 2] = conv_B;
 
                                 i++;
                             };*/
 
-                            for (unsigned int iter_no_aj = 0; iter_no_aj < rgb_no_aj.size() / 3; iter_no_aj++)
+                            for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
                             {
                                 if (i >= 0 && i < 64)
                                 {
@@ -1096,40 +1083,35 @@ int main()
                                 }
                             }
 
-
-
-
+                            ffda_buff.clear();
 
                             unsigned short ancho_8;
                             unsigned short alto_8;
 
-                            if ((ancho_in / 8.0f) - unsigned short(ancho_in / 8) > 0)
+                            if ((float(ancho_in) / 8) - unsigned short(ancho_in / 8) > 0)
                             {
                                 ancho_8 = (unsigned short(ancho_in / 8) + 1) * 8;
                             }
-                            if ((alto_in / 8.0f) - unsigned short(alto_in / 8) > 0)
+                            if ((float(alto_in) / 8) - unsigned short(alto_in / 8) > 0)
                             {
                                 alto_8 = (unsigned short(alto_in / 8) + 1) * 8;
                             }
 
-                            //for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
-                                //for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                            std::vector<float> rgb_aj(ancho_aj * alto_aj * 3);
 
-                            //std::ofstream jpg_sal("C:/Users/-/Desktop/x_0.jpg", std::ios::binary);
-                            //jpg_sal.write(ffda_byte.data(), ffda_byte.size());
+                            for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
+                            {
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+                                    {
+                                        rgb_aj[(filas_y * ancho_in) + columnas_x] = rgb_conv[(filas_y * ancho_8) + columnas_x];
+                                    }
+                            }
 
-                            ffda_buff.clear();
-
-                            //CONVERSIÓN A RGB
-                            //float conv_R = ((298.082 * [Y]) / 256) + ((408.583 * [Cr]) / 256) - (222.921);
-                            //float conv_G = ((298.082 * [Y]) / 256) - ((100.29 * [Cb]) / 256) - ((208.120 * [Cr]) / 256) + (135.576);
-                            //float conv_B = ((298.082 * [Y]) / 256) + ((516.412 * [Cb]) / 256) - (276.836);
-
-                            //
-
+                            rgb_conv.clear();
+                            
                             if (jpg_reint[78] == 0x06)
                             {
-                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_aj_2 = rgb_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1137,7 +1119,7 @@ int main()
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_no_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_no_aj_2[(ancho_in * alto_in * 3) - (ancho_in * 3) - (columnas_x * ancho_in * 3) + (filas_y * 3) + cont_rgb];
+                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(ancho_in * alto_in * 3) - (ancho_in * 3) - (columnas_x * ancho_in * 3) + (filas_y * 3) + cont_rgb];
                                         }
                                     }
                                 }
@@ -1145,7 +1127,7 @@ int main()
 
                             if (jpg_reint[78] == 0x03)
                             {
-                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_aj_2 = rgb_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1153,7 +1135,7 @@ int main()
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_no_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_no_aj_2[(ancho_in * alto_in * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_in * 3) + cont_rgb];
+                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(ancho_in * alto_in * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_in * 3) + cont_rgb];
                                         }
                                     }
                                 }
@@ -1161,7 +1143,7 @@ int main()
 
                             if (jpg_reint[78] == 0x08)
                             {
-                                std::vector<float> rgb_no_aj_2 = rgb_no_aj;
+                                std::vector<float> rgb_aj_2 = rgb_aj;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1169,23 +1151,23 @@ int main()
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_no_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_no_aj_2[(columnas_x * alto_in * 3) + (alto_in * 3) - 3 - (filas_y * 3) + cont_rgb];
+                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(columnas_x * alto_in * 3) + (alto_in * 3) - 3 - (filas_y * 3) + cont_rgb];
                                         }
                                     }
                                 }
                             }
                             
-                            std::string rgb_entrada(ancho_aj * alto_aj * 3, '\0');
+                            std::vector<float> rgb_entrada(ancho_aj * alto_aj * 3);
 
                             for (unsigned short filas_y = 0; filas_y < alto_aj; filas_y++)
                             {
                                 for (unsigned short columnas_x = 0; columnas_x < ancho_aj * 3; columnas_x++)
                                 {
-                                    rgb_entrada[(filas_y * ancho_aj * 3) + columnas_x] = rgb_no_aj[(filas_y * ancho_in * 3) + columnas_x + (((alto_in - alto_aj) / 2) * ancho_in * 3) + (((ancho_in - ancho_aj) / 2) * 3)];
+                                    rgb_entrada[(filas_y * ancho_aj * 3) + columnas_x] = rgb_aj[(filas_y * ancho_in * 3) + columnas_x + (((alto_in - alto_aj) / 2) * ancho_in * 3) + (((ancho_in - ancho_aj) / 2) * 3)];
                                 }
                             }
 
-                            rgb_no_aj.clear();
+                            rgb_aj.clear();
                             
                             unsigned short ancho_fin;
                             unsigned short alto_fin;
@@ -1201,7 +1183,7 @@ int main()
 
                             std::vector<std::optional<float>> rgb_salida(ancho_fin * alto_fin * 3);
 
-                            if (!(ancho_aj == 1920.0f && alto_aj == 1080.0f || ancho_aj == 1080.0f && alto_aj == 1920.0f))
+                            if (!(ancho_aj == 1920 && alto_aj == 1080 || ancho_aj == 1080 && alto_aj == 1920))
                             {
                                 unsigned short ancho_min;
                                 unsigned short alto_min;
@@ -1279,22 +1261,22 @@ int main()
                                         {
                                             if (ancho_fin >= ancho_aj && alto_fin >= alto_aj)
                                             {
-                                                rgb_salida[norm_y + norm_x + cont_rgb] = static_cast<unsigned char>(rgb_entrada[(filas_y * ancho_aj * 3) + (columnas_x * 3) + cont_rgb]);
+                                                rgb_salida[norm_y + norm_x + cont_rgb] = rgb_entrada[(filas_y * ancho_aj * 3) + (columnas_x * 3) + cont_rgb];
                                             }
 
                                             if (ancho_fin <= ancho_aj && alto_fin < alto_aj || ancho_fin < ancho_aj && alto_fin <= alto_aj)
                                             {
-                                                rgb_salida[(filas_y * ancho_fin * 3) + (columnas_x * 3) + cont_rgb] = static_cast<unsigned char>(rgb_entrada[norm_y + norm_x + cont_rgb]);
+                                                rgb_salida[(filas_y * ancho_fin * 3) + (columnas_x * 3) + cont_rgb] = rgb_entrada[norm_y + norm_x + cont_rgb];
                                             }
 
                                             if (ancho_fin > ancho_aj && alto_fin < alto_aj)
                                             {
-                                                rgb_salida[(filas_y * ancho_fin * 3) + norm_x + cont_rgb] = static_cast<unsigned char>(rgb_entrada[norm_y + (columnas_x * 3) + cont_rgb]);
+                                                rgb_salida[(filas_y * ancho_fin * 3) + norm_x + cont_rgb] = rgb_entrada[norm_y + (columnas_x * 3) + cont_rgb];
                                             }
 
                                             if (ancho_fin < ancho_aj && alto_fin > alto_aj)
                                             {
-                                                rgb_salida[norm_y + (columnas_x * 3) + cont_rgb] = static_cast<unsigned char>(rgb_entrada[(filas_y * ancho_aj * 3) + norm_x + cont_rgb]);
+                                                rgb_salida[norm_y + (columnas_x * 3) + cont_rgb] = rgb_entrada[(filas_y * ancho_aj * 3) + norm_x + cont_rgb];
                                             }
                                         }
                                     }
@@ -1391,87 +1373,47 @@ int main()
                             }
 
                             rgb_entrada.clear();
+
+                            unsigned char enc_bmp[54] = { 0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
+
+                            enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                            enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
+                            enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                            enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
+
+                            std::string bmp_salida;
+
+                            for (unsigned char ch_ch : enc_bmp)
+                            {
+                                bmp_salida.push_back(ch_ch);
+                            }
                             
-                            //CODIFICAR
-
-                            //
-
-                            //RGB to YCbCr
-                            //unsigned short conv_Y = (16) + ((65.738 * [R]) / 256) + ((129.057 * [G]) / 256) + ((25.064 * [B]) / 256);
-                            //unsigned short conv_Cb = (128) - ((37.945 * [R]) / 256) - ((74.494 * [G]) / 256) + ((112.439 * [B]) / 256);
-                            //unsigned short conv_Cr = (128) + (112.439 * [R]) - ((94.154 * [G]) / 256) - ((18.285 * [B]) / 256);
-
-                            //GUARDAR
-                            char* ffd8ffd9 = new char[26 + db2 - db + c02 - c0 + c42 - c4 + da2 - da];
-
-                            char d8e0[20] = { 0xFF,0xD8,0xFF,0xE0,0x00,0x10,0x4A,0x46,0x49,0x46,0x00,0x01,0x01,0x01,0x00,0xB4,0x00,0xB4,0x00,0x00 };
-                            for (i = 0; i < 20; i++)
+                            for (std::optional<unsigned char> ch_ch : rgb_salida)
                             {
-                                ffd8ffd9[i] = d8e0[i];
+                                bmp_salida.push_back(ch_ch.value());
                             }
 
-                            ffd8ffd9[24 + db2 - db + c02 - c0 + c42 - c4 + da2 - da] = 0xFF;
-                            ffd8ffd9[25 + db2 - db + c02 - c0 + c42 - c4 + da2 - da] = 0xD9;
-
-                            unsigned int db3 = db;
-                            for (db3; db3 <= db2; db3++, i++)
+                            rgb_salida.clear();
+                            
+                            if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp"))
                             {
-                                ffd8ffd9[i] = jpg_arr[db3];
+                                std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp");
                             }
-
-                            i2 = i;
-
-                            unsigned int c03 = c0;
-                            for (c03; c03 <= c02; c03++, i++)
-                            {
-                                ffd8ffd9[i] = jpg_arr[c03];
-                            }
-
-                            char da00 = unsigned short(ancho_aj) / 256;
-                            char da01 = unsigned short(ancho_aj) % 256;
-                            char eb00 = unsigned short(alto_aj) / 256;
-                            char eb01 = unsigned short(alto_aj) % 256;
-
-                            ffd8ffd9[i2 + 7] = da00;
-                            ffd8ffd9[i2 + 8] = da01;
-                            ffd8ffd9[i2 + 5] = eb00;
-                            ffd8ffd9[i2 + 6] = eb01;
-
-                            unsigned int c43 = c4;
-                            for (c43; c43 <= c42; c43++, i++)
-                            {
-                                ffd8ffd9[i] = jpg_arr[c43];
-                            }
-
-                            unsigned int da3 = da;
-                            for (da3; da3 <= da2; da3++, i++)
-                            {
-                                ffd8ffd9[i] = jpg_arr[da3];
-                            }
-
-                            delete[] jpg_arr;
-                            jpg_ent.close();
-
-                            if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg"))
-                            {
-                                std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg");
-                            }
-                            std::ofstream jpg_sal("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg", std::ios::binary);
+                            
+                            std::ofstream bmp_arch("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp", std::ios::binary);
+                            bmp_arch.write(bmp_salida.data(), bmp_salida.size());
+                            bmp_arch.close();
 
                             if (std::filesystem::exists(dcim_dir.path().string()))
                             {
                                 std::filesystem::remove(dcim_dir.path().string());
                             }
+                            
+                            std::filesystem::rename("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp", "C:/Users/" + n_usr + "/Desktop/gallerydir/" + dcim_dir.path().stem().string() + ".bmp");
 
-                            jpg_sal.write(ffd8ffd9, 26 + db2 - db + c02 - c0 + c42 - c4 + da2 - da);
-
-                            delete[] ffd8ffd9;
-                            jpg_sal.close();
-
-                            std::filesystem::rename("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.jpg", "C:/Users/" + n_usr + "/Desktop/gallerydir/" + dcim_dir.path().stem().string() + ".jpg");
+                            std::cout << dcim_dir.path().string() + "\n";
 
                             n++;
-                            std::cout << dcim_dir.path().string() + "\n";
                         }
                     }
                 }
@@ -1484,7 +1426,7 @@ int main()
 
             if (n == 0)
             {
-                std::cout << "No jpg files with dimensions greater than 1920×1080 were found\n";
+                std::cout << "No jpg files with dimensions greater or smaller than 1920×1080 were found\n";
             }
         }
         else

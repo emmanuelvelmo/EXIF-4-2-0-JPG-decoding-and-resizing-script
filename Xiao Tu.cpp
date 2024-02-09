@@ -65,9 +65,9 @@ int main()
                     jpg_ent.read(jpg_arr, jpg_size);
 
                     jpg_ent.close();
-
+                    
                     unsigned char* jpg_reint = reinterpret_cast<unsigned char*>(jpg_arr);
-
+                    
                     for (i = 0; i < jpg_size; i++)
                     {
                         if (jpg_reint[i] == 0xFF && jpg_reint[i + 1] == 0xC0 && jpg_reint[i + 2] == 0x00 && jpg_reint[i + 3] == 0x11)
@@ -170,30 +170,19 @@ int main()
                                 }
                             }
 
-                            if (m != 2)
-                            {
-                                break;
-                            }
-
                             unsigned char lum_tb[64];
                             unsigned char chr_tb[64];
-                            if (jpg_reint[db + 2] * 256 + jpg_reint[db + 3] > 67)
+                            
+                            unsigned short z_z[64] = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63 };
+
+                            for (m = 0; m < 64; m++)
                             {
-                                unsigned short z_z[64] = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63 };
-
-                                for (m = 0; m < 64; m++)
-                                {
-                                    lum_tb[z_z[m]] = jpg_reint[db + 5 + m];
-                                }
-
-                                for (m = 0; m < 64; m++)
-                                {
-                                    chr_tb[z_z[m]] = jpg_reint[db + 70 + m];
-                                }
+                                lum_tb[z_z[m]] = jpg_reint[db + 5 + m];
                             }
-                            else
+
+                            for (m = 0; m < 64; m++)
                             {
-                                    break;
+                                chr_tb[z_z[m]] = jpg_reint[db + 70 + m];
                             }
 
                             m = 0;
@@ -254,11 +243,6 @@ int main()
                                 }
                             }
 
-                            if (m != 2)
-                            {
-                                break;
-                            }
-
                             unsigned char dht_00[16];
                             std::string lum_dc_nod;
 
@@ -282,7 +266,7 @@ int main()
 
                             if (18 + i2 < c42 - c4)
                             {
-                                unsigned short m3, m4 = 0;
+                                unsigned short m3 = 0, m4 = 0;
 
                                 i2 = m4;
                                 for (m = 0; m < 16; m++)
@@ -395,11 +379,6 @@ int main()
                                         break;
                                     }
                                 }
-                            }
-
-                            if (m != 2)
-                            {
-                                break;
                             }
 
                             std::function<std::string* (unsigned char(&)[16], unsigned short&)> generar_canonicos = [&i](unsigned char(&dht2)[16], unsigned short& tam_arr2) -> std::string*
@@ -989,10 +968,9 @@ int main()
                             delete[] codigos_canonicos_01;
                             delete[] codigos_canonicos_10;
                             delete[] codigos_canonicos_11;
-                            delete[] jpg_arr;
 
                             std::vector<float> rgb_conv(ffda_buff.size() * 2);
-                            
+
                             i = 0;
                             i2 = 0;
 
@@ -1000,35 +978,16 @@ int main()
                             {
                                 if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
                                 {
-                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) - 222.921;
-                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)]) / 256) + 135.576;
-                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)]) / 256) - 276.836;
-                                }
-
-                                if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
-                                {
-                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) - (222.921);
-                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8]) / 256) + (135.576);
-                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8]) / 256) - 276.836;
-                                }
-
-                                i++;
-                            };
-
-                            /*std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_conv]()
-                            {
-                                if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
-                                {
                                     rgb_conv[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
-                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2)];
-                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2)];
+                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + short(i / 2)];
+                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2)];
                                 }
 
                                 if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
                                 {
                                     rgb_conv[(i2 * 768) + i] = ffda_buff[(i2 * 384) + i];
-                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + unsigned short(i / 2) - 8];
-                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + unsigned short(i / 2) - 8];
+                                    rgb_conv[(i2 * 768) + i + 1] = ffda_buff[(i2 * 384) + m2 + short(i / 2) - 8];
+                                    rgb_conv[(i2 * 768) + i + 2] = ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2) - 8];
                                 }
 
                                 float conv_R = ((298.082 * rgb_conv[(i2 * 768) + i]) / 256) + ((408.583 * rgb_conv[(i2 * 768) + i + 2]) / 256) - 222.921;
@@ -1038,6 +997,25 @@ int main()
                                 rgb_conv[(i2 * 768) + i] = conv_R;
                                 rgb_conv[(i2 * 768) + i + 1] = conv_G;
                                 rgb_conv[(i2 * 768) + i + 2] = conv_B;
+
+                                i++;
+                            };
+
+                            /*std::function<void()> i_subsamp = [&i, &i2, &m, &m2, &ffda_buff, &rgb_conv]()
+                            {
+                                if (i >= 0 + m && i < 8 + m || i >= 16 + m && i < 24 + m || i >= 32 + m && i < 40 + m || i >= 48 + m && i < 56 + m)
+                                {
+                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2)]) / 256) - 222.921;
+                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + short(i / 2)]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2)]) / 256) + 135.576;
+                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + short(i / 2)]) / 256) - 276.836;
+                                }
+
+                                if (i >= 8 + m && i < 16 + m || i >= 24 + m && i < 32 + m || i >= 40 + m && i < 48 + m || i >= 56 + m)
+                                {
+                                    rgb_conv[(i2 * 768) + i] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((408.583 * ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2) - 8]) / 256) - (222.921);
+                                    rgb_conv[(i2 * 768) + i + 1] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) - ((100.29 * ffda_buff[(i2 * 384) + m2 + short(i / 2) - 8]) / 256) - ((208.120 * ffda_buff[(i2 * 384) + m2 + 64 + short(i / 2) - 8]) / 256) + (135.576);
+                                    rgb_conv[(i2 * 768) + i + 2] = ((298.082 * ffda_buff[(i2 * 384) + i]) / 256) + ((516.412 * ffda_buff[(i2 * 384) + m2 + short(i / 2) - 8]) / 256) - 276.836;
+                                }
 
                                 i++;
                             };*/
@@ -1050,6 +1028,11 @@ int main()
                                     m2 = 256;
 
                                     i_subsamp();
+
+                                    if (i == 64)
+                                    {
+                                        iter_conv++;
+                                    }
                                 }
 
                                 if (i >= 64 && i < 128)
@@ -1058,6 +1041,11 @@ int main()
                                     m2 = 264;
 
                                     i_subsamp();
+
+                                    if (i == 128)
+                                    {
+                                        iter_conv++;
+                                    }
                                 }
 
                                 if (i >= 128 && i < 192)
@@ -1066,6 +1054,11 @@ int main()
                                     m2 = 296;
 
                                     i_subsamp();
+
+                                    if (i == 192)
+                                    {
+                                        iter_conv++;
+                                    }
                                 }
 
                                 if (i >= 192 && i < 256)
@@ -1074,6 +1067,11 @@ int main()
                                     m2 = 304;
 
                                     i_subsamp();
+
+                                    if (i == 256)
+                                    {
+                                        iter_conv++;
+                                    }
                                 }
 
                                 if (i == 256)
@@ -1088,46 +1086,64 @@ int main()
                             unsigned short ancho_8;
                             unsigned short alto_8;
 
-                            if ((float(ancho_in) / 8) - unsigned short(ancho_in / 8) > 0)
+                            if ((ancho_in / 8) - short(ancho_in / 8) > 0)
                             {
-                                ancho_8 = (unsigned short(ancho_in / 8) + 1) * 8;
+                                ancho_8 = (short(ancho_in / 8) + 1) * 8;
                             }
-                            if ((float(alto_in) / 8) - unsigned short(alto_in / 8) > 0)
+                            else
                             {
-                                alto_8 = (unsigned short(alto_in / 8) + 1) * 8;
-                            }
-
-                            std::vector<float> rgb_aj(ancho_aj * alto_aj * 3);
-
-                            for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
-                            {
-                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
-                                    {
-                                        rgb_aj[(filas_y * ancho_in) + columnas_x] = rgb_conv[(filas_y * ancho_8) + columnas_x];
-                                    }
+                                ancho_8 = ancho_in;
                             }
 
-                            rgb_conv.clear();
-                            
-                            if (jpg_reint[78] == 0x06)
+                            if ((alto_in / 8) - short(alto_in / 8) > 0)
                             {
-                                std::vector<float> rgb_aj_2 = rgb_aj;
+                                alto_8 = (short(alto_in / 8) + 1) * 8;
+                            }
+                            else
+                            {
+                                alto_8 = alto_in;
+                            }
 
-                                for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
+                            if (!(ancho_in == ancho_8 && alto_in == alto_8))
+                            {
+                                std::vector<float> rgb_aj(ancho_in * alto_in * 3);
+
+                                for (short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
-                                    for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+                                    for (short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(ancho_in * alto_in * 3) - (ancho_in * 3) - (columnas_x * ancho_in * 3) + (filas_y * 3) + cont_rgb];
+                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv[(filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb];
                                         }
+                                    }
+                                }
+
+                                rgb_conv = rgb_aj;
+                            }
+
+                            if (jpg_reint[78] == 0x06)
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+                                unsigned short iter_lin = 0;
+
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+                                {
+                                    for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[iter_lin + cont_rgb] = rgb_conv_2[(ancho_in * alto_in * 3) - (ancho_in * 3) - (filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb];
+                                        }
+
+                                        iter_lin++;
                                     }
                                 }
                             }
 
                             if (jpg_reint[78] == 0x03)
                             {
-                                std::vector<float> rgb_aj_2 = rgb_aj;
+                                std::vector<float> rgb_conv_2 = rgb_conv;
 
                                 for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
@@ -1135,50 +1151,59 @@ int main()
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(ancho_in * alto_in * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_in * 3) + cont_rgb];
+                                            rgb_conv[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv_2[(ancho_in * alto_in * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_in * 3) + cont_rgb];
                                         }
                                     }
                                 }
+
                             }
 
                             if (jpg_reint[78] == 0x08)
                             {
-                                std::vector<float> rgb_aj_2 = rgb_aj;
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+                                unsigned short iter_lin = 0;
 
-                                for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
                                 {
-                                    for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+                                    for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_aj[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_aj_2[(columnas_x * alto_in * 3) + (alto_in * 3) - 3 - (filas_y * 3) + cont_rgb];
+                                            rgb_conv[iter_lin + cont_rgb] = rgb_conv_2[(ancho_in * 3) - 3 + (filas_y * ancho_in * 3) - (columnas_x * 3) + cont_rgb];
                                         }
+
+                                        iter_lin++;
                                     }
                                 }
                             }
+                            
+                            delete[] jpg_arr;
                             
                             std::vector<float> rgb_entrada(ancho_aj * alto_aj * 3);
 
                             for (unsigned short filas_y = 0; filas_y < alto_aj; filas_y++)
                             {
-                                for (unsigned short columnas_x = 0; columnas_x < ancho_aj * 3; columnas_x++)
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_aj; columnas_x++)
                                 {
-                                    rgb_entrada[(filas_y * ancho_aj * 3) + columnas_x] = rgb_aj[(filas_y * ancho_in * 3) + columnas_x + (((alto_in - alto_aj) / 2) * ancho_in * 3) + (((ancho_in - ancho_aj) / 2) * 3)];
+                                    for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                    {
+                                        rgb_entrada[(filas_y * ancho_aj * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv[(((alto_in - alto_aj) / 2) * ancho_in * 3) + (((ancho_in - ancho_aj) / 2) * 3) + (filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb];
+                                    }
                                 }
                             }
-
-                            rgb_aj.clear();
+                            
+                            rgb_conv.clear();
                             
                             unsigned short ancho_fin;
                             unsigned short alto_fin;
 
                             if (ancho_aj > alto_aj)
                             {
-                                ancho_fin = 1920, ancho_fin = 1080;
+                                ancho_fin = 1920, alto_fin = 1080;
                             }
                             else
                             {
-                                ancho_fin = 1080, ancho_fin = 1920;
+                                ancho_fin = 1080, alto_fin = 1920;
                             }
 
                             std::vector<std::optional<float>> rgb_salida(ancho_fin * alto_fin * 3);
@@ -1376,10 +1401,10 @@ int main()
 
                             unsigned char enc_bmp[54] = { 0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                            enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
-                            enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
-                            enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
-                            enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
+                            enc_bmp[18] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                            enc_bmp[19] = static_cast<unsigned char>(alto_fin / 256);
+                            enc_bmp[22] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                            enc_bmp[23] = static_cast<unsigned char>(ancho_fin / 256);
 
                             std::string bmp_salida;
 
@@ -1426,7 +1451,7 @@ int main()
 
             if (n == 0)
             {
-                std::cout << "No jpg files with dimensions greater or smaller than 1920×1080 were found\n";
+                std::cout << "No jpg files with dimensions greater or smaller than 1920x1080 were found\n";
             }
         }
         else

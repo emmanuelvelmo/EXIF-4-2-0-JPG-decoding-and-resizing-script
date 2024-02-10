@@ -432,7 +432,7 @@ int main()
 
                             std::vector<float> ffda_buff;
 
-                            std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11, &lum_tb, &chr_tb]()
+                            std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &z_z, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11, &lum_tb, &chr_tb]()
                             {
                                 unsigned short num_ceros = 0;
                                 unsigned short nbits_cdos = 0;
@@ -613,14 +613,18 @@ int main()
                                     }
                                 };
 
-                                std::function<void()> i_zig_zag = [&ffda_buff]()
+                                unsigned short i_z_z[64] = { 0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63 };
+
+                                std::function<void(unsigned short(&)[64])> f_zig_zag = [&ffda_buff](const unsigned short(&z_z2)[64])
                                 {
-                                    unsigned short i_z_z[64] = { 0, 1, 5, 6, 14, 15, 27, 28, 2, 4, 7, 13, 16, 26, 29, 42, 3, 8, 12, 17, 25, 30, 41, 43, 9, 11, 18, 24, 31, 40, 44, 53, 10, 19, 23, 32, 39, 45, 52, 54, 20, 22, 33, 38, 46, 51, 55, 60, 21, 34, 37, 47, 50, 56, 59, 61, 35, 36, 48, 49, 57, 58, 62, 63 };
+                                    unsigned short ord_z_z[64];
+                                    std::copy(std::begin(z_z2), std::end(z_z2), std::begin(ord_z_z));
+
                                     short tb_dc_ac[64];
 
                                     for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
                                     {
-                                        tb_dc_ac[iter_tb] = ffda_buff[ffda_buff.size() - 64 + i_z_z[iter_tb]];
+                                        tb_dc_ac[iter_tb] = ffda_buff[ffda_buff.size() - 64 + ord_z_z[iter_tb]];
                                     }
 
                                     for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
@@ -737,8 +741,9 @@ int main()
                                                 {
                                                     cont_63 = 0;
 
-                                                    i_zig_zag();
+                                                    f_zig_zag(i_z_z);
                                                     f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                    f_zig_zag(z_z);
                                                     f_idct();
                                                 }
                                             }
@@ -838,8 +843,9 @@ int main()
                                                     {
                                                         cont_63 = 0;
 
-                                                        i_zig_zag();
+                                                        f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                        f_zig_zag(z_z);
                                                         f_idct();
                                                     }
                                                 }
@@ -911,8 +917,9 @@ int main()
                                                     {
                                                         cont_63 = 0;
 
-                                                        i_zig_zag();
+                                                        f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                        f_zig_zag(z_z);
                                                         f_idct();
                                                     }
                                                 }

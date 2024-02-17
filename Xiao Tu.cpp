@@ -1055,17 +1055,6 @@ int main()
                                 }
                             }
 
-                            /*for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
-                            {
-                                float conv_R = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((408.583 * rgb_conv[(iter_conv * 3) + 2]) / 256) - 222.921;
-                                float conv_G = ((298.082 * rgb_conv[iter_conv * 3]) / 256) - ((100.29 * rgb_conv[(iter_conv * 3) + 1]) / 256) - ((208.120 * rgb_conv[(iter_conv * 3) + 2]) / 256) + 135.576;
-                                float conv_B = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((516.412 * rgb_conv[(iter_conv * 3) + 1]) / 256) - 276.836;
-
-                                rgb_conv[iter_conv * 3] = conv_R;
-                                rgb_conv[(iter_conv * 3) + 1] = conv_G;
-                                rgb_conv[(iter_conv * 3) + 2] = conv_B;
-                            }*/
-
                             unsigned short ancho_8;
                             unsigned short alto_8;
 
@@ -1087,7 +1076,49 @@ int main()
                                 alto_8 = alto_in;
                             }
 
-                            /*if (!(ancho_in == ancho_8 && alto_in == alto_8))
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv2 = rgb_conv;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short cuad_y = 0; cuad_y < alto_8 / 16; cuad_y++)
+                                {
+                                    for (unsigned short cuad_x = 0; cuad_x < ancho_8 / 16; cuad_x++)
+                                    {
+                                        for (unsigned short mcu_y = 0; mcu_y < 2; mcu_y++)
+                                        {
+                                            for (unsigned short mcu_x = 0; mcu_x < 2; mcu_x++)
+                                            {
+                                                for (unsigned short filas_y = 0; filas_y < 8; filas_y++)
+                                                {
+                                                    for (unsigned short columnas_x = 0; columnas_x < 8; columnas_x++)
+                                                    {
+                                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                                        {
+                                                            rgb_conv[(cuad_y * (ancho_8 / 16) * 784) + (cuad_x * 48) + (mcu_y * (ancho_8 / 8) * 192) + (mcu_x * 24) + (filas_y * (ancho_8 * 3)) + (columnas_x * 3) + cont_rgb] = rgb_conv2[iter_lin];
+
+                                                            iter_lin++;
+                                                        }
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            /*for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
+                            {
+                                float conv_R = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((408.583 * rgb_conv[(iter_conv * 3) + 2]) / 256) - 222.921;
+                                float conv_G = ((298.082 * rgb_conv[iter_conv * 3]) / 256) - ((100.29 * rgb_conv[(iter_conv * 3) + 1]) / 256) - ((208.120 * rgb_conv[(iter_conv * 3) + 2]) / 256) + 135.576;
+                                float conv_B = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((516.412 * rgb_conv[(iter_conv * 3) + 1]) / 256) - 276.836;
+
+                                rgb_conv[iter_conv * 3] = conv_R;
+                                rgb_conv[(iter_conv * 3) + 1] = conv_G;
+                                rgb_conv[(iter_conv * 3) + 2] = conv_B;
+                            }
+
+                            if (!(ancho_in == ancho_8 && alto_in == alto_8))
                             {
                                 std::vector<float> rgb_aj(ancho_in * alto_in * 3);
 
@@ -1108,7 +1139,7 @@ int main()
                             if (byte_ornt == 0x06)
                             {
                                 std::vector<float> rgb_conv_2 = rgb_conv;
-                                unsigned short iter_lin = 0;
+                                unsigned int iter_lin = 0;
 
                                 for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
                                 {
@@ -1144,7 +1175,7 @@ int main()
                             if (byte_ornt == 0x08)
                             {
                                 std::vector<float> rgb_conv_2 = rgb_conv;
-                                unsigned short iter_lin = 0;
+                                unsigned int iter_lin = 0;
 
                                 for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
                                 {

@@ -1095,7 +1095,7 @@ int main()
                                                     {
                                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                                         {
-                                                            rgb_conv[(cuad_y * (ancho_8 / 16) * 784) + (cuad_x * 48) + (mcu_y * (ancho_8 / 8) * 192) + (mcu_x * 24) + (filas_y * (ancho_8 * 3)) + (columnas_x * 3) + cont_rgb] = rgb_conv2[iter_lin];
+                                                            rgb_conv[(cuad_y * (ancho_8 / 16) * 768) + (cuad_x * 48) + (mcu_y * (ancho_8 / 8) * 192) + (mcu_x * 24) + 0 + (filas_y * (ancho_8 * 3)) + (columnas_x * 3) + cont_rgb] = rgb_conv2[iter_lin];
 
                                                             iter_lin++;
                                                         }

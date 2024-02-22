@@ -732,7 +732,7 @@ int main()
 
                                                     f_zig_zag(i_z_z);
                                                     f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                    f_zig_zag(z_z);
+                                                    //f_zig_zag(z_z);
                                                     f_idct();
                                                 }
                                             }
@@ -834,7 +834,7 @@ int main()
 
                                                         f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        f_zig_zag(z_z);
+                                                        //f_zig_zag(z_z);
                                                         f_idct();
                                                     }
                                                 }
@@ -908,7 +908,7 @@ int main()
 
                                                         f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        f_zig_zag(z_z);
+                                                        //f_zig_zag(z_z);
                                                         f_idct();
                                                     }
                                                 }
@@ -1107,6 +1107,41 @@ int main()
                                 }
                             }
 
+                            //EVALUAR
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+
+                                for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                {
+                                    for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[(filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv_2[(ancho_8 * 3) - 3 + (filas_y * ancho_8 * 3) - (columnas_x * 3) + cont_rgb];
+                                        }
+                                    }
+                                }
+
+                            }
+
+                            if (byte_ornt == 0x01)
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+
+                                for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                {
+                                    for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[(filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv_2[(ancho_8 * alto_8 * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_8 * 3) + cont_rgb];
+                                        }
+                                    }
+                                }
+
+                            }
+
                             /*for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
                             {
                                 float conv_R = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((408.583 * rgb_conv[(iter_conv * 3) + 2]) / 256) - 222.921;
@@ -1155,7 +1190,7 @@ int main()
                                 }
                             }
 
-                            if (byte_ornt == 0x03)
+                            if (byte_ornt == 0x01 || byte_ornt == 0x03)
                             {
                                 std::vector<float> rgb_conv_2 = rgb_conv;
 
@@ -1191,7 +1226,7 @@ int main()
                                 }
                             }
                                                         
-                            std::vector<float> rgb_entrada(ancho_aj * alto_aj * 3);
+                            std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
 
                             for (unsigned short filas_y = 0; filas_y < alto_aj; filas_y++)
                             {

@@ -1144,9 +1144,9 @@ int main()
 
                             /*for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
                             {
-                                float conv_R = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((408.583 * rgb_conv[(iter_conv * 3) + 2]) / 256) - 222.921;
-                                float conv_G = ((298.082 * rgb_conv[iter_conv * 3]) / 256) - ((100.29 * rgb_conv[(iter_conv * 3) + 1]) / 256) - ((208.120 * rgb_conv[(iter_conv * 3) + 2]) / 256) + 135.576;
-                                float conv_B = ((298.082 * rgb_conv[iter_conv * 3]) / 256) + ((516.412 * rgb_conv[(iter_conv * 3) + 1]) / 256) - 276.836;
+                                float conv_R = rgb_conv[iter_conv * 3] + 1.402f * rgb_conv[(iter_conv * 3) + 2] + 128;
+                                float conv_G = rgb_conv[iter_conv * 3] - 0.344f * rgb_conv[(iter_conv * 3) + 1] - 0.714f * rgb_conv[(iter_conv * 3) + 2] + 128;
+                                float conv_B = rgb_conv[iter_conv * 3] + 1.772f * rgb_conv[(iter_conv * 3) + 1] + 128;
 
                                 rgb_conv[iter_conv * 3] = conv_R;
                                 rgb_conv[(iter_conv * 3) + 1] = conv_G;

@@ -733,7 +733,7 @@ int main()
                                                     f_zig_zag(i_z_z);
                                                     f_dqt(cont_dcac, lum_tb, chr_tb);
                                                     //f_zig_zag(z_z);
-                                                    f_idct();
+                                                    //f_idct();
                                                 }
                                             }
 
@@ -835,7 +835,7 @@ int main()
                                                         f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
                                                         //f_zig_zag(z_z);
-                                                        f_idct();
+                                                        //f_idct();
                                                     }
                                                 }
                                             }
@@ -909,7 +909,7 @@ int main()
                                                         f_zig_zag(i_z_z);
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
                                                         //f_zig_zag(z_z);
-                                                        f_idct();
+                                                        //f_idct();
                                                     }
                                                 }
                                             }
@@ -965,8 +965,184 @@ int main()
                             delete[] codigos_canonicos_10;
                             delete[] codigos_canonicos_11;
                             delete[] jpg_arr;
+                            
 
+
+
+
+                            //
+                            std::vector<float> rgb_conv_y((ffda_buff.size() * 2) / 3);
+
+                            for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
+                            {
+                                for (unsigned short iter1 = 0; iter1 < 256; iter1++)
+                                {
+                                    rgb_conv_y[(iter0 * 256) + iter1] = ffda_buff[(iter0 * 384) + iter1];
+                                }
+                            }
+
+                            unsigned short ancho_8;
+                            unsigned short alto_8;
+
+                            if ((ancho_in / 8) - short(ancho_in / 8) > 0)
+                            {
+                                ancho_8 = (short(ancho_in / 8) + 1) * 8;
+                            }
+                            else
+                            {
+                                ancho_8 = ancho_in;
+                            }
+
+                            if ((alto_in / 8) - short(alto_in / 8) > 0)
+                            {
+                                alto_8 = (short(alto_in / 8) + 1) * 8;
+                            }
+                            else
+                            {
+                                alto_8 = alto_in;
+                            }
+
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_t = rgb_conv_y;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short cuad_y = 0; cuad_y < alto_8 / 16; cuad_y++)
+                                {
+                                    for (unsigned short cuad_x = 0; cuad_x < ancho_8 / 16; cuad_x++)
+                                    {
+                                        for (unsigned short mcu_y = 0; mcu_y < 2; mcu_y++)
+                                        {
+                                            for (unsigned short mcu_x = 0; mcu_x < 2; mcu_x++)
+                                            {
+                                                for (unsigned short filas_y = 0; filas_y < 8; filas_y++)
+                                                {
+                                                    for (unsigned short columnas_x = 0; columnas_x < 8; columnas_x++)
+                                                    {
+                                                        rgb_conv_y[(cuad_y * ancho_8 * 16) + (cuad_x * 16) + (mcu_y * ancho_8 * 8) + (mcu_x * 8) + (filas_y * ancho_8) + columnas_x] = rgb_conv_t[iter_lin];
+
+                                                        iter_lin++;
+                                                    }
+                                                }
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            //CB
+                            std::vector<float> rgb_conv_cb(ffda_buff.size() / 6);
+
+                            for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
+                            {
+                                for (unsigned short iter1 = 0; iter1 < 64; iter1++)
+                                {
+                                    rgb_conv_cb[(iter0 * 64) + iter1] = ffda_buff[(iter0 * 384) + 256 + iter1];
+                                }
+                            }
+
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_t = rgb_conv_cb;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short cuad_y = 0; cuad_y < alto_8 / 16; cuad_y++)
+                                {
+                                    for (unsigned short cuad_x = 0; cuad_x < ancho_8 / 16; cuad_x++)
+                                    {
+                                        for (unsigned short filas_y = 0; filas_y < 8; filas_y++)
+                                        {
+                                            for (unsigned short columnas_x = 0; columnas_x < 8; columnas_x++)
+                                            {
+                                                rgb_conv_cb[(cuad_y * (ancho_8 / 2) * 8) + (cuad_x * 8) + (filas_y * (ancho_8 / 2)) + columnas_x] = rgb_conv_t[iter_lin];
+
+                                                iter_lin++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_t((ffda_buff.size() / 6) * 4);
+
+                                for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                {
+                                    for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                    {
+                                        rgb_conv_t[(filas_y * ancho_8) + columnas_x] = rgb_conv_cb[((filas_y / 2) * (ancho_8 / 2)) + (columnas_x / 2)];
+                                    }
+                                }
+
+                                rgb_conv_cb = rgb_conv_t;
+                            }
+                            
+                            //CR
+                            std::vector<float> rgb_conv_cr(ffda_buff.size() / 6);
+
+                            for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
+                            {
+                                for (unsigned short iter1 = 0; iter1 < 64; iter1++)
+                                {
+                                    rgb_conv_cr[(iter0 * 64) + iter1] = ffda_buff[(iter0 * 384) + 320 + iter1];
+                                }
+                            }
+                            
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_t = rgb_conv_cr;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short cuad_y = 0; cuad_y < alto_8 / 16; cuad_y++)
+                                {
+                                    for (unsigned short cuad_x = 0; cuad_x < ancho_8 / 16; cuad_x++)
+                                    {
+                                        for (unsigned short filas_y = 0; filas_y < 8; filas_y++)
+                                        {
+                                            for (unsigned short columnas_x = 0; columnas_x < 8; columnas_x++)
+                                            {
+                                                rgb_conv_cr[(cuad_y * (ancho_8 / 2) * 8) + (cuad_x * 8) + (filas_y * (ancho_8 / 2)) + columnas_x] = rgb_conv_t[iter_lin];
+
+                                                iter_lin++;
+                                            }
+                                        }
+                                    }
+                                }
+                            }
+
+                            if (true)
+                            {
+                                std::vector<float> rgb_conv_t((ffda_buff.size() / 6) * 4);
+
+                                for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                {
+                                    for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                    {
+                                        rgb_conv_t[(filas_y * ancho_8) + columnas_x] = rgb_conv_cr[((filas_y / 2) * (ancho_8 / 2)) + (columnas_x / 2)];
+                                    }
+                                }
+
+                                rgb_conv_cr = rgb_conv_t;
+                            }
+                            
                             std::vector<float> rgb_conv(ffda_buff.size() * 2);
+
+                            if (true)
+                            {
+                                for (unsigned int iter0 = 0; iter0 < rgb_conv.size() / 3; iter0++)
+                                {
+                                    rgb_conv[iter0 * 3] = rgb_conv_y[iter0];
+                                    rgb_conv[(iter0 * 3) + 1] = rgb_conv_cb[iter0];
+                                    rgb_conv[(iter0 * 3) + 2] = rgb_conv_cr[iter0];
+                                }
+                            }
+                            
+
+
+
+
+                            /*std::vector<float> rgb_conv(ffda_buff.size() * 2);
 
                             i = 0;
                             i2 = 0;
@@ -1035,7 +1211,7 @@ int main()
                             i = 0;
                             i2 = 0;
 
-                            if(true)
+                            if (true)
                             {
                                 std::vector<float> rgb_conv2 = rgb_conv;
 
@@ -1105,7 +1281,7 @@ int main()
                                         }
                                     }
                                 }
-                            }
+                            }*/
 
                             //EVALUAR
                             if (true)
@@ -1142,6 +1318,7 @@ int main()
 
                             }
 
+                            //RGB
                             /*for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
                             {
                                 float conv_R = rgb_conv[iter_conv * 3] + 1.402f * rgb_conv[(iter_conv * 3) + 2] + 128;
@@ -1151,9 +1328,9 @@ int main()
                                 rgb_conv[iter_conv * 3] = conv_R;
                                 rgb_conv[(iter_conv * 3) + 1] = conv_G;
                                 rgb_conv[(iter_conv * 3) + 2] = conv_B;
-                            }
+                            }*/
 
-                            if (!(ancho_in == ancho_8 && alto_in == alto_8))
+                            /*if (!(ancho_in == ancho_8 && alto_in == alto_8))
                             {
                                 std::vector<float> rgb_aj(ancho_in * alto_in * 3);
 

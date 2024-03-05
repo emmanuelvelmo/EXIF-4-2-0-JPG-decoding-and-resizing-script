@@ -971,16 +971,6 @@ int main()
 
 
                             //
-                            std::vector<float> rgb_conv_y((ffda_buff.size() * 2) / 3);
-
-                            for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
-                            {
-                                for (unsigned short iter1 = 0; iter1 < 256; iter1++)
-                                {
-                                    rgb_conv_y[(iter0 * 256) + iter1] = ffda_buff[(iter0 * 384) + iter1];
-                                }
-                            }
-
                             unsigned short ancho_8;
                             unsigned short alto_8;
 
@@ -1002,6 +992,17 @@ int main()
                                 alto_8 = alto_in;
                             }
 
+                            //Y
+                            std::vector<float> rgb_conv_y((ffda_buff.size() * 2) / 3);
+
+                            for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
+                            {
+                                for (unsigned short iter1 = 0; iter1 < 256; iter1++)
+                                {
+                                    rgb_conv_y[(iter0 * 256) + iter1] = ffda_buff[(iter0 * 384) + iter1];
+                                }
+                            }
+                            
                             if (true)
                             {
                                 std::vector<float> rgb_conv_t = rgb_conv_y;
@@ -1325,9 +1326,16 @@ int main()
                                 float conv_G = rgb_conv[iter_conv * 3] - 0.344f * rgb_conv[(iter_conv * 3) + 1] - 0.714f * rgb_conv[(iter_conv * 3) + 2] + 128;
                                 float conv_B = rgb_conv[iter_conv * 3] + 1.772f * rgb_conv[(iter_conv * 3) + 1] + 128;
 
-                                rgb_conv[iter_conv * 3] = conv_R;
+                                if (conv_R < 0) conv_R = 0;
+                                if (conv_R > 255) conv_R = 255;
+                                if (conv_G < 0) conv_G = 0;
+                                if (conv_G > 255) conv_G = 255;
+                                if (conv_B < 0) conv_B = 0;
+                                if (conv_B > 255) conv_B = 255;
+
+                                rgb_conv[iter_conv * 3] = conv_B;
                                 rgb_conv[(iter_conv * 3) + 1] = conv_G;
-                                rgb_conv[(iter_conv * 3) + 2] = conv_B;
+                                rgb_conv[(iter_conv * 3) + 2] = conv_R;
                             }*/
 
                             /*if (!(ancho_in == ancho_8 && alto_in == alto_8))

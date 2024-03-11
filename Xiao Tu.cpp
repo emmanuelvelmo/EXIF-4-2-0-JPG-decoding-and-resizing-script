@@ -1427,18 +1427,22 @@ int main()
                                     ancho_in = ancho_x;
                                     alto_in = alto_x;
                                 }
-                            }*/
-
+                            }
+                            
                             if (byte_ornt == 0x06 || byte_ornt == 0x08)
                             {
                                 unsigned int ancho_x = alto_in;
                                 unsigned int alto_x = ancho_in;
+                                unsigned int ancho_x2 = alto_aj;
+                                unsigned int alto_x2 = ancho_aj;
 
                                 ancho_in = ancho_x;
                                 alto_in = alto_x;
+                                ancho_aj = ancho_x2;
+                                alto_aj = alto_x2;
                             }
                                                         
-                            /*std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
+                            std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
 
                             for (unsigned short filas_y = 0; filas_y < alto_aj; filas_y++)
                             {
@@ -1662,27 +1666,27 @@ int main()
 
                             if (byte_ornt == 0x01 || byte_ornt == 0x03)
                             {
-                                //enc_bmp[18] = static_cast<unsigned char>(ancho_in - (unsigned char(ancho_in / 256) * 256));
-                                //enc_bmp[19] = static_cast<unsigned char>(ancho_in / 256);
-                                //enc_bmp[22] = static_cast<unsigned char>(alto_in - (unsigned char(alto_in / 256) * 256));
-                                //enc_bmp[23] = static_cast<unsigned char>(alto_in / 256);
-
                                 enc_bmp[18] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
                                 enc_bmp[19] = static_cast<unsigned char>(ancho_8 / 256);
                                 enc_bmp[22] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
                                 enc_bmp[23] = static_cast<unsigned char>(alto_8 / 256);
+
+                                //enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                                //enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
+                                //enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                                //enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
                             }
                             else
                             {
-                                //enc_bmp[18] = static_cast<unsigned char>(alto_in - (unsigned char(alto_in / 256) * 256));
-                                //enc_bmp[19] = static_cast<unsigned char>(alto_in / 256);
-                                //enc_bmp[22] = static_cast<unsigned char>(ancho_in - (unsigned char(ancho_in / 256) * 256));
-                                //enc_bmp[23] = static_cast<unsigned char>(ancho_in / 256);
+                                enc_bmp[18] = static_cast<unsigned char>(alto_aj - (unsigned char(alto_aj / 256) * 256));
+                                enc_bmp[19] = static_cast<unsigned char>(alto_aj / 256);
+                                enc_bmp[22] = static_cast<unsigned char>(ancho_aj - (unsigned char(ancho_aj / 256) * 256));
+                                enc_bmp[23] = static_cast<unsigned char>(ancho_aj / 256);
 
-                                enc_bmp[18] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
-                                enc_bmp[19] = static_cast<unsigned char>(alto_8 / 256);
-                                enc_bmp[22] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
-                                enc_bmp[23] = static_cast<unsigned char>(ancho_8 / 256);
+                                //enc_bmp[18] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                                //enc_bmp[19] = static_cast<unsigned char>(alto_fin / 256);
+                                //enc_bmp[22] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                                //enc_bmp[23] = static_cast<unsigned char>(ancho_fin / 256);
                             }
 
                             std::string bmp_salida;

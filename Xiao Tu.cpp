@@ -94,16 +94,8 @@ int main()
                         float alto_in;
                         float ancho_in;
 
-                        if (byte_ornt == 0x06 || byte_ornt == 0x08)
-                        {
-                            alto_in = jpg_reint[i + 2] * 256 + jpg_reint[i + 3];
-                            ancho_in = jpg_reint[i] * 256 + jpg_reint[i + 1];
-                        }
-                        else
-                        {
-                            alto_in = jpg_reint[i] * 256 + jpg_reint[i + 1];
-                            ancho_in = jpg_reint[i + 2] * 256 + jpg_reint[i + 3];
-                        }
+                        alto_in = jpg_reint[i] * 256 + jpg_reint[i + 1];
+                        ancho_in = jpg_reint[i + 2] * 256 + jpg_reint[i + 3];
 
                         if (!(ancho_in == 1920 && alto_in == 1080 || ancho_in == 1080 && alto_in == 1920))
                         {
@@ -122,22 +114,26 @@ int main()
                             {
                                 if (rel_lado > alto_in)
                                 {
-                                    ancho_aj = alto_in * (16.0f / 9), alto_aj = alto_in;
+                                    ancho_aj = alto_in * (16.0f / 9);
+                                    alto_aj = alto_in;
                                 }
                                 else
                                 {
-                                    ancho_aj = ancho_in, alto_aj = ancho_in * (9.0f / 16);
+                                    ancho_aj = ancho_in;
+                                    alto_aj = ancho_in * (9.0f / 16);
                                 }
                             }
                             else
                             {
                                 if (rel_lado > ancho_in)
                                 {
-                                    ancho_aj = ancho_in, alto_aj = ancho_in * (16.0f / 9);
+                                    ancho_aj = ancho_in;
+                                    alto_aj = ancho_in * (16.0f / 9);
                                 }
                                 else
                                 {
-                                    ancho_aj = alto_in * (9.0f / 16), alto_aj = alto_in;
+                                    ancho_aj = alto_in * (9.0f / 16);
+                                    alto_aj = alto_in;
                                 }
                             }
 
@@ -991,7 +987,7 @@ int main()
                             {
                                 alto_8 = alto_in;
                             }
-
+                            
                             //Y
                             std::vector<float> rgb_conv_y((ffda_buff.size() * 2) / 3);
 
@@ -1138,6 +1134,8 @@ int main()
                                     rgb_conv[(iter0 * 3) + 2] = rgb_conv_cr[iter0];
                                 }
                             }
+
+                            ffda_buff.clear();
                             
 
 
@@ -1284,8 +1282,8 @@ int main()
                                 }
                             }*/
 
-                            //EVALUAR
-                            if (true)
+                            //ESPEJO
+                            if (byte_ornt == 0x01 || byte_ornt == 0x03)
                             {
                                 std::vector<float> rgb_conv_2 = rgb_conv;
 
@@ -1299,7 +1297,21 @@ int main()
                                         }
                                     }
                                 }
+                            }
+                            else
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
 
+                                for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                {
+                                    for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[(filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv_2[(ancho_8 * alto_8 * 3) - (ancho_8 * 3) - (filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb];
+                                        }
+                                    }
+                                }
                             }
 
                             if (byte_ornt == 0x01)
@@ -1317,6 +1329,44 @@ int main()
                                     }
                                 }
 
+                            }
+
+                            if (byte_ornt == 0x06)
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                {
+                                    for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[iter_lin] = rgb_conv_2[(ancho_8 * 3) - 3 + (filas_y * ancho_8 * 3) - (columnas_x * 3) + cont_rgb];
+
+                                            iter_lin++;
+                                        }
+                                    }
+                                }
+                            }
+                            
+                            if (byte_ornt == 0x08)
+                            {
+                                std::vector<float> rgb_conv_2 = rgb_conv;
+                                unsigned int iter_lin = 0;
+
+                                for (unsigned short columnas_x = 0; columnas_x < ancho_8; columnas_x++)
+                                {
+                                    for (unsigned short filas_y = 0; filas_y < alto_8; filas_y++)
+                                    {
+                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
+                                        {
+                                            rgb_conv[iter_lin] = rgb_conv_2[(ancho_8 * alto_8 * 3) - (ancho_8 * 3) - (filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb];
+                                            
+                                            iter_lin++;
+                                        }
+                                    }
+                                }
                             }
 
                             //RGB
@@ -1338,10 +1388,22 @@ int main()
                                 rgb_conv[(iter_conv * 3) + 2] = conv_R;
                             }*/
 
+                            //RECORTE DECOD A INI
+                            //CAMBIAR DIMENSIONES ALTO ANCHO (INVERSIÓN)
                             /*if (!(ancho_in == ancho_8 && alto_in == alto_8))
                             {
-                                std::vector<float> rgb_aj(ancho_in * alto_in * 3);
+                                //REORDEN DE DIMENSIONES
+                                if (byte_ornt == 0x06 || byte_ornt == 0x08)
+                                {
+                                    unsigned int ancho_x = alto_in;
+                                    unsigned int alto_x = ancho_in;
 
+                                    ancho_in = ancho_x;
+                                    alto_in = alto_x;
+                                }
+
+                                std::vector<float> rgb_aj(ancho_in * alto_in * 3);
+                                
                                 for (short filas_y = 0; filas_y < alto_in; filas_y++)
                                 {
                                     for (short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
@@ -1355,63 +1417,28 @@ int main()
 
                                 rgb_conv = rgb_aj;
                             }
-
-                            if (byte_ornt == 0x06)
+                            else
                             {
-                                std::vector<float> rgb_conv_2 = rgb_conv;
-                                unsigned int iter_lin = 0;
-
-                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
+                                if (byte_ornt == 0x06 || byte_ornt == 0x08)
                                 {
-                                    for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
-                                    {
-                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
-                                        {
-                                            rgb_conv[iter_lin + cont_rgb] = rgb_conv_2[(ancho_in * alto_in * 3) - (ancho_in * 3) - (filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb];
-                                        }
+                                    unsigned int ancho_x = alto_in;
+                                    unsigned int alto_x = ancho_in;
 
-                                        iter_lin++;
-                                    }
+                                    ancho_in = ancho_x;
+                                    alto_in = alto_x;
                                 }
-                            }
+                            }*/
 
-                            if (byte_ornt == 0x01 || byte_ornt == 0x03)
+                            if (byte_ornt == 0x06 || byte_ornt == 0x08)
                             {
-                                std::vector<float> rgb_conv_2 = rgb_conv;
+                                unsigned int ancho_x = alto_in;
+                                unsigned int alto_x = ancho_in;
 
-                                for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
-                                {
-                                    for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
-                                    {
-                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
-                                        {
-                                            rgb_conv[(filas_y * ancho_in * 3) + (columnas_x * 3) + cont_rgb] = rgb_conv_2[(ancho_in * alto_in * 3) - 3 - (columnas_x * 3) - (filas_y * ancho_in * 3) + cont_rgb];
-                                        }
-                                    }
-                                }
-
-                            }
-
-                            if (byte_ornt == 0x08)
-                            {
-                                std::vector<float> rgb_conv_2 = rgb_conv;
-                                unsigned int iter_lin = 0;
-
-                                for (unsigned short columnas_x = 0; columnas_x < ancho_in; columnas_x++)
-                                {
-                                    for (unsigned short filas_y = 0; filas_y < alto_in; filas_y++)
-                                    {
-                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
-                                        {
-                                            rgb_conv[iter_lin + cont_rgb] = rgb_conv_2[(ancho_in * 3) - 3 + (filas_y * ancho_in * 3) - (columnas_x * 3) + cont_rgb];
-                                        }
-
-                                        iter_lin++;
-                                    }
-                                }
+                                ancho_in = ancho_x;
+                                alto_in = alto_x;
                             }
                                                         
-                            std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
+                            /*std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
 
                             for (unsigned short filas_y = 0; filas_y < alto_aj; filas_y++)
                             {
@@ -1633,15 +1660,30 @@ int main()
 
                             unsigned char enc_bmp[54] = { 0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
-                            /*enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
-                            enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
-                            enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
-                            enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);*/
+                            if (byte_ornt == 0x01 || byte_ornt == 0x03)
+                            {
+                                //enc_bmp[18] = static_cast<unsigned char>(ancho_in - (unsigned char(ancho_in / 256) * 256));
+                                //enc_bmp[19] = static_cast<unsigned char>(ancho_in / 256);
+                                //enc_bmp[22] = static_cast<unsigned char>(alto_in - (unsigned char(alto_in / 256) * 256));
+                                //enc_bmp[23] = static_cast<unsigned char>(alto_in / 256);
 
-                            enc_bmp[18] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
-                            enc_bmp[19] = static_cast<unsigned char>(ancho_8 / 256);
-                            enc_bmp[22] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
-                            enc_bmp[23] = static_cast<unsigned char>(alto_8 / 256);
+                                enc_bmp[18] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
+                                enc_bmp[19] = static_cast<unsigned char>(ancho_8 / 256);
+                                enc_bmp[22] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
+                                enc_bmp[23] = static_cast<unsigned char>(alto_8 / 256);
+                            }
+                            else
+                            {
+                                //enc_bmp[18] = static_cast<unsigned char>(alto_in - (unsigned char(alto_in / 256) * 256));
+                                //enc_bmp[19] = static_cast<unsigned char>(alto_in / 256);
+                                //enc_bmp[22] = static_cast<unsigned char>(ancho_in - (unsigned char(ancho_in / 256) * 256));
+                                //enc_bmp[23] = static_cast<unsigned char>(ancho_in / 256);
+
+                                enc_bmp[18] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
+                                enc_bmp[19] = static_cast<unsigned char>(alto_8 / 256);
+                                enc_bmp[22] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
+                                enc_bmp[23] = static_cast<unsigned char>(ancho_8 / 256);
+                            }
 
                             std::string bmp_salida;
 

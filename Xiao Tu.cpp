@@ -1136,151 +1136,10 @@ int main()
                             }
 
                             ffda_buff.clear();
-                            
 
 
 
 
-                            /*std::vector<float> rgb_conv(ffda_buff.size() * 2);
-
-                            i = 0;
-                            i2 = 0;
-
-                            std::function<void()> i_subsamp = [&i, &m, &m2, &ffda_buff, &rgb_conv]()
-                            {
-                                for (unsigned short it = 0; it < 64; it++)
-                                {
-                                    rgb_conv[(i * 768) + (m * 3) + it] = ffda_buff[(i * 384) + m + it];
-                                }
-
-                                for (unsigned short it = 0; it < 64; it++)
-                                {
-                                    if (it >= 0 && it < 8 || it >= 16 && it < 24 || it >= 32 && it < 40 || it >= 48 && it < 56)
-                                    {
-                                        rgb_conv[(i * 768) + (m * 3) + 64 + it] = ffda_buff[(i * 384) + m2 + short(it / 2)];
-                                    }
-
-                                    if (it >= 8 && it < 16 || it >= 24 && it < 32 || it >= 40 && it < 48 || it >= 56)
-                                    {
-                                        rgb_conv[(i * 768) + (m * 3) + 64 + it] = rgb_conv[(i * 768) + (m * 3) + 64 + it - 8];
-                                    }
-                                }
-
-                                for (unsigned short it = 0; it < 64; it++)
-                                {
-                                    if (it >= 0 && it < 8 || it >= 16 && it < 24 || it >= 32 && it < 40 || it >= 48 && it < 56)
-                                    {
-                                        rgb_conv[(i * 768) + (m * 3) + 128 + it] = ffda_buff[(i * 384) + m2 + 64 + short(it / 2)];
-                                    }
-
-                                    if (it >= 8 && it < 16 || it >= 24 && it < 32 || it >= 40 && it < 48 || it >= 56)
-                                    {
-                                        rgb_conv[(i * 768) + (m * 3) + 128 + it] = rgb_conv[(i * 768) + (m * 3) + 128 + it - 8];
-                                    }
-                                }
-                            };
-
-                            for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 768; iter_conv++)
-                            {
-                                m = 0;
-                                m2 = 256;
-
-                                i_subsamp();
-
-                                m = 64;
-                                m2 = 260;
-
-                                i_subsamp();
-
-                                m = 128;
-                                m2 = 288;
-
-                                i_subsamp();
-
-                                m = 192;
-                                m2 = 292;
-
-                                i_subsamp();
-
-                                i++;
-                            }
-
-                            ffda_buff.clear();
-
-                            i = 0;
-                            i2 = 0;
-
-                            if (true)
-                            {
-                                std::vector<float> rgb_conv2 = rgb_conv;
-
-                                for (unsigned int iter_conv = 0; iter_conv < rgb_conv.size() / 3; iter_conv++)
-                                {
-                                    rgb_conv[iter_conv * 3] = rgb_conv2[(i2 * 192) + i];
-                                    rgb_conv[(iter_conv * 3) + 1] = rgb_conv2[(i2 * 192) + 64 + i];
-                                    rgb_conv[(iter_conv * 3) + 2] = rgb_conv2[(i2 * 192) + 128 + i];
-                                    
-                                    i++;
-
-                                    if (i == 64)
-                                    {
-                                        i = 0;
-                                        i2++;
-                                    }
-                                }
-                            }
-
-                            unsigned short ancho_8;
-                            unsigned short alto_8;
-
-                            if ((ancho_in / 8) - short(ancho_in / 8) > 0)
-                            {
-                                ancho_8 = (short(ancho_in / 8) + 1) * 8;
-                            }
-                            else
-                            {
-                                ancho_8 = ancho_in;
-                            }
-
-                            if ((alto_in / 8) - short(alto_in / 8) > 0)
-                            {
-                                alto_8 = (short(alto_in / 8) + 1) * 8;
-                            }
-                            else
-                            {
-                                alto_8 = alto_in;
-                            }
-
-                            if (true)
-                            {
-                                std::vector<float> rgb_conv2 = rgb_conv;
-                                unsigned int iter_lin = 0;
-
-                                for (unsigned short cuad_y = 0; cuad_y < alto_8 / 16; cuad_y++)
-                                {
-                                    for (unsigned short cuad_x = 0; cuad_x < ancho_8 / 16; cuad_x++)
-                                    {
-                                        for (unsigned short mcu_y = 0; mcu_y < 2; mcu_y++)
-                                        {
-                                            for (unsigned short mcu_x = 0; mcu_x < 2; mcu_x++)
-                                            {
-                                                for (unsigned short filas_y = 0; filas_y < 8; filas_y++)
-                                                {
-                                                    for (unsigned short columnas_x = 0; columnas_x < 8; columnas_x++)
-                                                    {
-                                                        for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
-                                                        {
-                                                            rgb_conv[(cuad_y * (ancho_8 / 16) * 768) + (cuad_x * 48) + (mcu_y * (ancho_8 / 8) * 192) + (mcu_x * 24) + 0 + (filas_y * (ancho_8 * 3)) + (columnas_x * 3) + cont_rgb] = rgb_conv2[iter_lin];
-
-                                                            iter_lin++;
-                                                        }
-                                                    }
-                                                }
-                                            }
-                                        }
-                                    }
-                                }
-                            }*/
 
                             //ESPEJO
                             if (byte_ornt == 0x01 || byte_ornt == 0x03)
@@ -1388,20 +1247,30 @@ int main()
                                 rgb_conv[(iter_conv * 3) + 2] = conv_R;
                             }*/
 
-                            //RECORTE DECOD A INI
-                            //CAMBIAR DIMENSIONES ALTO ANCHO (INVERSIÓN)
-                            /*if (!(ancho_in == ancho_8 && alto_in == alto_8))
+                            if (byte_ornt == 0x06 || byte_ornt == 0x08)
                             {
-                                //REORDEN DE DIMENSIONES
-                                if (byte_ornt == 0x06 || byte_ornt == 0x08)
-                                {
-                                    unsigned int ancho_x = alto_in;
-                                    unsigned int alto_x = ancho_in;
+                                unsigned int ancho_x = alto_in;
+                                unsigned int alto_x = ancho_in;
 
-                                    ancho_in = ancho_x;
-                                    alto_in = alto_x;
-                                }
+                                ancho_in = ancho_x;
+                                alto_in = alto_x;
 
+                                unsigned int ancho_x1 = alto_aj;
+                                unsigned int alto_x1 = ancho_aj;
+
+                                ancho_aj = ancho_x1;
+                                alto_aj = alto_x1;
+
+                                unsigned int ancho_x2 = alto_8;
+                                unsigned int alto_x2 = ancho_8;
+
+                                ancho_8 = ancho_x2;
+                                alto_8 = alto_x2;
+                            }
+
+                            //ELIMINAR BUFFER EN IMAGEN
+                            if (!(ancho_in == ancho_8 && alto_in == alto_8))
+                            {
                                 std::vector<float> rgb_aj(ancho_in * alto_in * 3);
                                 
                                 for (short filas_y = 0; filas_y < alto_in; filas_y++)
@@ -1416,30 +1285,6 @@ int main()
                                 }
 
                                 rgb_conv = rgb_aj;
-                            }
-                            else
-                            {
-                                if (byte_ornt == 0x06 || byte_ornt == 0x08)
-                                {
-                                    unsigned int ancho_x = alto_in;
-                                    unsigned int alto_x = ancho_in;
-
-                                    ancho_in = ancho_x;
-                                    alto_in = alto_x;
-                                }
-                            }
-                            
-                            if (byte_ornt == 0x06 || byte_ornt == 0x08)
-                            {
-                                unsigned int ancho_x = alto_in;
-                                unsigned int alto_x = ancho_in;
-                                unsigned int ancho_x2 = alto_aj;
-                                unsigned int alto_x2 = ancho_aj;
-
-                                ancho_in = ancho_x;
-                                alto_in = alto_x;
-                                ancho_aj = ancho_x2;
-                                alto_aj = alto_x2;
                             }
                                                         
                             std::vector<float> rgb_entrada(ancho_aj* alto_aj * 3);
@@ -1473,6 +1318,7 @@ int main()
 
                             if (!(ancho_aj == 1920 && alto_aj == 1080 || ancho_aj == 1080 && alto_aj == 1920))
                             {
+                                //NORMALIZACIÓN PARA MATRIZ DE SALIDA
                                 unsigned short ancho_min;
                                 unsigned short alto_min;
                                 unsigned int iter1 = 0, iter2 = 0;
@@ -1570,6 +1416,7 @@ int main()
                                     }
                                 }
 
+                                //INTERPOLACIÓN HORIZONTAL
                                 for (unsigned short filas_y = 0; filas_y < alto_fin; filas_y++)
                                 {
                                     for (unsigned short columnas_x = 0; columnas_x < ancho_fin; columnas_x++)
@@ -1612,6 +1459,7 @@ int main()
                                     }
                                 }
 
+                                //INTERPOLACIÓN VERTICAL
                                 for (unsigned short columnas_x = 0; columnas_x < ancho_fin; columnas_x++)
                                 {
                                     iter1 = columnas_x * 3, iter2 = columnas_x * 3;
@@ -1654,39 +1502,30 @@ int main()
                                     }
                                 }
 
+                                //REDONDEO
                                 for (unsigned int iter_mtz = 0; iter_mtz < (ancho_fin * alto_fin * 3); iter_mtz++)
                                 {
                                     rgb_salida[iter_mtz] = std::round(rgb_salida[iter_mtz].value());
                                 }
                             }
 
-                            rgb_entrada.clear();*/
+                            rgb_entrada.clear();
 
                             unsigned char enc_bmp[54] = { 0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
 
                             if (byte_ornt == 0x01 || byte_ornt == 0x03)
                             {
-                                enc_bmp[18] = static_cast<unsigned char>(ancho_8 - (unsigned char(ancho_8 / 256) * 256));
-                                enc_bmp[19] = static_cast<unsigned char>(ancho_8 / 256);
-                                enc_bmp[22] = static_cast<unsigned char>(alto_8 - (unsigned char(alto_8 / 256) * 256));
-                                enc_bmp[23] = static_cast<unsigned char>(alto_8 / 256);
-
-                                //enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
-                                //enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
-                                //enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
-                                //enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
+                                enc_bmp[18] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                                enc_bmp[19] = static_cast<unsigned char>(ancho_fin / 256);
+                                enc_bmp[22] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                                enc_bmp[23] = static_cast<unsigned char>(alto_fin / 256);
                             }
                             else
                             {
-                                enc_bmp[18] = static_cast<unsigned char>(alto_aj - (unsigned char(alto_aj / 256) * 256));
-                                enc_bmp[19] = static_cast<unsigned char>(alto_aj / 256);
-                                enc_bmp[22] = static_cast<unsigned char>(ancho_aj - (unsigned char(ancho_aj / 256) * 256));
-                                enc_bmp[23] = static_cast<unsigned char>(ancho_aj / 256);
-
-                                //enc_bmp[18] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
-                                //enc_bmp[19] = static_cast<unsigned char>(alto_fin / 256);
-                                //enc_bmp[22] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
-                                //enc_bmp[23] = static_cast<unsigned char>(ancho_fin / 256);
+                                enc_bmp[18] = static_cast<unsigned char>(alto_fin - (unsigned char(alto_fin / 256) * 256));
+                                enc_bmp[19] = static_cast<unsigned char>(alto_fin / 256);
+                                enc_bmp[22] = static_cast<unsigned char>(ancho_fin - (unsigned char(ancho_fin / 256) * 256));
+                                enc_bmp[23] = static_cast<unsigned char>(ancho_fin / 256);
                             }
 
                             std::string bmp_salida;
@@ -1696,13 +1535,12 @@ int main()
                                 bmp_salida.push_back(ch_ch);
                             }
                             
-                            for (std::optional<unsigned char> ch_ch : rgb_conv)
-                            //for (std::optional<unsigned char> ch_ch : rgb_salida)
+                            for (std::optional<unsigned char> ch_ch : rgb_salida)
                             {
                                 bmp_salida.push_back(ch_ch.value());
                             }
 
-                            //rgb_salida.clear();
+                            rgb_salida.clear();
                             rgb_conv.clear();
                             
                             if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp"))

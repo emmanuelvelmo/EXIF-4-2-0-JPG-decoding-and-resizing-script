@@ -693,7 +693,7 @@ int main()
                                         if (iter_bit == 4)
                                         {
                                             std::bitset<4> conv_bit_4(buff_bit_4);
-                                            buff_bit_4.clear();
+                                            std::string().swap(buff_bit_4);
                                             num_ceros = conv_bit_4.to_ulong();
                                         }
                                     }
@@ -706,7 +706,7 @@ int main()
                                         if (iter_bit == 0)
                                         {
                                             std::bitset<4> conv_bit_4(buff_bit_4);
-                                            buff_bit_4.clear();
+                                            std::string().swap(buff_bit_4);
                                             nbits_cdos = conv_bit_4.to_ulong();
                                         }
                                     }
@@ -770,7 +770,7 @@ int main()
                                                 }
                                             }
 
-                                            buff_canonico.clear();
+                                            std::string().swap(buff_canonico);
                                             cont_nbits = 0;
                                             nbits_cdos = 0;
 
@@ -833,7 +833,7 @@ int main()
 
                                             if (comprobar_buff == true)
                                             {
-                                                buff_canonico.clear();
+                                                std::string().swap(buff_canonico);
                                             }
                                         }
 
@@ -885,7 +885,7 @@ int main()
 
                                             if (comprobar_buff == true)
                                             {
-                                                buff_canonico.clear();
+                                                std::string().swap(buff_canonico);
                                             }
                                         }
 
@@ -909,7 +909,7 @@ int main()
 
                                             if (comprobar_buff == true)
                                             {
-                                                buff_canonico.clear();
+                                                std::string().swap(buff_canonico);
                                             }
                                         }
 
@@ -960,7 +960,7 @@ int main()
 
                                             if (comprobar_buff == true)
                                             {
-                                                buff_canonico.clear();
+                                                std::string().swap(buff_canonico);
                                             }
                                         }
 
@@ -1073,7 +1073,7 @@ int main()
                                         }
                                     }
 
-                                    rgb_tmp.clear();
+                                    std::vector<float>().swap(rgb_tmp);
                                 }
 
                                 //SUBSAMPLING SI APLICA
@@ -1090,7 +1090,7 @@ int main()
                                     }
 
                                     rgb_entrada2 = rgb_tmp;
-                                    rgb_tmp.clear();
+                                    std::vector<float>().swap(rgb_tmp);
                                 }
                             };
 
@@ -1140,10 +1140,10 @@ int main()
                                 }
                             }
 
-                            rgb_entrada_y.clear();
-                            rgb_entrada_cb.clear();
-                            rgb_entrada_cr.clear();
-                            ffda_buff.clear();
+                            std::vector<float>().swap(rgb_entrada_y);
+                            std::vector<float>().swap(rgb_entrada_cb);
+                            std::vector<float>().swap(rgb_entrada_cr);
+                            std::vector<float>().swap(ffda_buff);
 
                             //REORDENA EN ESPEJO
                             if (byte_ornt == 0x01 || byte_ornt == 0x03)
@@ -1161,7 +1161,7 @@ int main()
                                     }
                                 }
 
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
                             else
                             {
@@ -1178,7 +1178,7 @@ int main()
                                     }
                                 }
 
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             //ROTAR MATRIZ 180 GRADOS
@@ -1197,7 +1197,7 @@ int main()
                                     }
                                 }
 
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             //ROTAR MATRIZ 90 GRADOS IZQUIERDA
@@ -1219,7 +1219,7 @@ int main()
                                     }
                                 }
 
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             //ROTAR MATRIZ 90 GRADOS DERECHA
@@ -1241,7 +1241,7 @@ int main()
                                     }
                                 }
 
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             //CONVERSIÓN RGB
@@ -1284,7 +1284,7 @@ int main()
                                 ancho_8 = ancho_x2;
                                 alto_8 = alto_x2;
                             }
-                            
+
                             //RECORTE DE BUFFER
                             if (!(ancho_in == ancho_8 && alto_in == alto_8))
                             {
@@ -1302,7 +1302,7 @@ int main()
                                 }
 
                                 rgb_entrada = rgb_tmp;
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             //RECORTE CENTRADO
@@ -1322,7 +1322,7 @@ int main()
                                 }
 
                                 rgb_entrada = rgb_tmp;
-                                rgb_tmp.clear();
+                                std::vector<float>().swap(rgb_tmp);
                             }
 
                             unsigned short ancho_fin;
@@ -1538,7 +1538,7 @@ int main()
                                 }
                             }
 
-                            rgb_entrada.clear();
+                            std::vector<float>().swap(rgb_entrada);
 
                             //ENCABEZADO DE BMP
                             unsigned char enc_bmp[54] = { 0x42, 0x4D, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x36, 0x00, 0x00, 0x00, 0x28, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x01, 0x00, 0x18, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00 };
@@ -1563,13 +1563,13 @@ int main()
                                 bmp_salida.push_back(ch_ch.value());
                             }
 
-                            rgb_salida.clear();
+                            std::vector<std::optional<float>>().swap(rgb_salida);
 
                             if (std::filesystem::exists("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp"))
                             {
                                 std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp");
                             }
-
+                            
                             //ESCRIBIR ARREGLO FINAL EN ARCHIVO BMP Y CERRAR ARCHIVO 
                             std::ofstream bmp_arch("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp", std::ios::binary);
                             bmp_arch.write(bmp_salida.data(), bmp_salida.size());

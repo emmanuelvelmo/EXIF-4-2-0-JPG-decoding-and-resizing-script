@@ -448,7 +448,7 @@ int main()
                                 unsigned short num_ceros = 0;
                                 unsigned short nbits_cdos = 0;
 
-                                //FUNCIÓN PARA DECUANTIFICAR
+                                //FUNCIÓN DE DECUANTIFICACIÓN
                                 std::function<void(unsigned short&, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short& cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
                                 {
                                     if (cont_dcac >= 0 && cont_dcac <= 255)
@@ -467,164 +467,38 @@ int main()
                                         }
                                     }
                                 };
-
+                                
                                 //FUNCIÓN DE INVERSA DE TRANSFORMADA DISCRETA DE COSENO
                                 std::function<void()> f_idct = [&ffda_buff]()
                                 {
-                                    float m0 = 2.0 * std::cos(1.0 / 16.0 * 2.0 * 3.141592);
-                                    float m1 = 2.0 * std::cos(2.0 / 16.0 * 2.0 * 3.141592);
-                                    float m3 = 2.0 * std::cos(2.0 / 16.0 * 2.0 * 3.141592);
-                                    float m5 = 2.0 * std::cos(3.0 / 16.0 * 2.0 * 3.141592);
-                                    float m2 = m0 - m5;
-                                    float m4 = m0 + m5;
+                                    float mtz_tmp[64];
 
-                                    float s0 = std::cos(0.0 / 16.0 * 3.141592) / std::sqrt(8);
-                                    float s1 = std::cos(1.0 / 16.0 * 3.141592) / 2.0;
-                                    float s2 = std::cos(2.0 / 16.0 * 3.141592) / 2.0;
-                                    float s3 = std::cos(3.0 / 16.0 * 3.141592) / 2.0;
-                                    float s4 = std::cos(4.0 / 16.0 * 3.141592) / 2.0;
-                                    float s5 = std::cos(5.0 / 16.0 * 3.141592) / 2.0;
-                                    float s6 = std::cos(6.0 / 16.0 * 3.141592) / 2.0;
-                                    float s7 = std::cos(7.0 / 16.0 * 3.141592) / 2.0;
-
-                                    //SE PROCESA MATRIZ HORIZONTALMENTE
-                                    for (unsigned short iter_idct = 0; iter_idct < 8; iter_idct++)
+                                    for (unsigned short iter_idct = 0; iter_idct < 64; iter_idct++)
                                     {
-                                        float g0 = ffda_buff[(ffda_buff.size() - 64) + (0 * 8 + iter_idct)] * s0;
-                                        float g1 = ffda_buff[(ffda_buff.size() - 64) + (4 * 8 + iter_idct)] * s4;
-                                        float g2 = ffda_buff[(ffda_buff.size() - 64) + (2 * 8 + iter_idct)] * s2;
-                                        float g3 = ffda_buff[(ffda_buff.size() - 64) + (6 * 8 + iter_idct)] * s6;
-                                        float g4 = ffda_buff[(ffda_buff.size() - 64) + (5 * 8 + iter_idct)] * s5;
-                                        float g5 = ffda_buff[(ffda_buff.size() - 64) + (1 * 8 + iter_idct)] * s1;
-                                        float g6 = ffda_buff[(ffda_buff.size() - 64) + (7 * 8 + iter_idct)] * s7;
-                                        float g7 = ffda_buff[(ffda_buff.size() - 64) + (3 * 8 + iter_idct)] * s3;
-
-                                        float f0 = g0;
-                                        float f1 = g1;
-                                        float f2 = g2;
-                                        float f3 = g3;
-                                        float f4 = g4 - g7;
-                                        float f5 = g5 + g6;
-                                        float f6 = g5 - g6;
-                                        float f7 = g4 + g7;
-
-                                        float e0 = f0;
-                                        float e1 = f1;
-                                        float e2 = f2 - f3;
-                                        float e3 = f2 + f3;
-                                        float e4 = f4;
-                                        float e5 = f5 - f7;
-                                        float e6 = f6;
-                                        float e7 = f5 + f7;
-                                        float e8 = f4 + f6;
-
-                                        float d0 = e0;
-                                        float d1 = e1;
-                                        float d2 = e2 * m1;
-                                        float d3 = e3;
-                                        float d4 = e4 * m2;
-                                        float d5 = e5 * m3;
-                                        float d6 = e6 * m4;
-                                        float d7 = e7;
-                                        float d8 = e8 * m5;
-
-                                        float c0 = d0 + d1;
-                                        float c1 = d0 - d1;
-                                        float c2 = d2 - d3;
-                                        float c3 = d3;
-                                        float c4 = d4 + d8;
-                                        float c5 = d5 + d7;
-                                        float c6 = d6 - d8;
-                                        float c7 = d7;
-                                        float c8 = c5 - c6;
-
-                                        float b0 = c0 + c3;
-                                        float b1 = c1 + c2;
-                                        float b2 = c1 - c2;
-                                        float b3 = c0 - c3;
-                                        float b4 = c4 - c8;
-                                        float b5 = c8;
-                                        float b6 = c6 - c7;
-                                        float b7 = c7;
-
-                                        ffda_buff[(ffda_buff.size() - 64) + (0 * 8 + iter_idct)] = b0 + b7;
-                                        ffda_buff[(ffda_buff.size() - 64) + (1 * 8 + iter_idct)] = b1 + b6;
-                                        ffda_buff[(ffda_buff.size() - 64) + (2 * 8 + iter_idct)] = b2 + b5;
-                                        ffda_buff[(ffda_buff.size() - 64) + (3 * 8 + iter_idct)] = b3 + b4;
-                                        ffda_buff[(ffda_buff.size() - 64) + (4 * 8 + iter_idct)] = b3 - b4;
-                                        ffda_buff[(ffda_buff.size() - 64) + (5 * 8 + iter_idct)] = b2 - b5;
-                                        ffda_buff[(ffda_buff.size() - 64) + (6 * 8 + iter_idct)] = b1 - b6;
-                                        ffda_buff[(ffda_buff.size() - 64) + (7 * 8 + iter_idct)] = b0 - b7;
+                                        mtz_tmp[iter_idct] = ffda_buff[ffda_buff.size() - 64 + iter_idct];
                                     }
 
-                                    //SE PROCESA MATRIZ VERTICALMENTE
-                                    for (unsigned short iter_idct2 = 0; iter_idct2 < 8; iter_idct2++)
+                                    float p_sum, cu, cv;
+
+                                    for (unsigned short cord_x = 0; cord_x < 8; ++cord_x)
                                     {
-                                        float g0 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] * s0;
-                                        float g1 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] * s4;
-                                        float g2 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] * s2;
-                                        float g3 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] * s6;
-                                        float g4 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] * s5;
-                                        float g5 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] * s1;
-                                        float g6 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] * s7;
-                                        float g7 = ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] * s3;
+                                        for (unsigned short cord_y = 0; cord_y < 8; ++cord_y)
+                                        {
+                                            p_sum = 0;
 
-                                        float f0 = g0;
-                                        float f1 = g1;
-                                        float f2 = g2;
-                                        float f3 = g3;
-                                        float f4 = g4 - g7;
-                                        float f5 = g5 + g6;
-                                        float f6 = g5 - g6;
-                                        float f7 = g4 + g7;
+                                            for (unsigned short cord_u = 0; cord_u < 8; ++cord_u)
+                                            {
+                                                for (unsigned short cord_v = 0; cord_v < 8; ++cord_v)
+                                                {
+                                                    cu = (cord_u == 0) ? sqrt(1.0f / 8) : sqrt(2.0f / 8);
+                                                    cv = (cord_v == 0) ? sqrt(1.0f / 8) : sqrt(2.0f / 8);
 
-                                        float e0 = f0;
-                                        float e1 = f1;
-                                        float e2 = f2 - f3;
-                                        float e3 = f2 + f3;
-                                        float e4 = f4;
-                                        float e5 = f5 - f7;
-                                        float e6 = f6;
-                                        float e7 = f5 + f7;
-                                        float e8 = f4 + f6;
+                                                    p_sum += cu * cv * mtz_tmp[(cord_u * 8) + cord_v] * cos((2 * cord_x + 1) * cord_u * 3.141592 / 16) * cos((2 * cord_y + 1) * cord_v * 3.141592 / 16);
+                                                }
+                                            }
 
-                                        float d0 = e0;
-                                        float d1 = e1;
-                                        float d2 = e2 * m1;
-                                        float d3 = e3;
-                                        float d4 = e4 * m2;
-                                        float d5 = e5 * m3;
-                                        float d6 = e6 * m4;
-                                        float d7 = e7;
-                                        float d8 = e8 * m5;
-
-                                        float c0 = d0 + d1;
-                                        float c1 = d0 - d1;
-                                        float c2 = d2 - d3;
-                                        float c3 = d3;
-                                        float c4 = d4 + d8;
-                                        float c5 = d5 + d7;
-                                        float c6 = d6 - d8;
-                                        float c7 = d7;
-                                        float c8 = c5 - c6;
-
-                                        float b0 = c0 + c3;
-                                        float b1 = c1 + c2;
-                                        float b2 = c1 - c2;
-                                        float b3 = c0 - c3;
-                                        float b4 = c4 - c8;
-                                        float b5 = c8;
-                                        float b6 = c6 - c7;
-                                        float b7 = c7;
-
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 0)] = b0 + b7;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 1)] = b1 + b6;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 2)] = b2 + b5;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 3)] = b3 + b4;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 4)] = b3 - b4;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 5)] = b2 - b5;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 6)] = b1 - b6;
-                                        ffda_buff[(ffda_buff.size() - 64) + (iter_idct2 * 8 + 7)] = b0 - b7;
+                                            ffda_buff[(ffda_buff.size() - 64) + ((cord_x * 8) + cord_y)] = p_sum;
+                                        }
                                     }
                                 };
 
@@ -766,7 +640,7 @@ int main()
                                                     //SE REALIZA ZIG ZAG INVERSO, DECUANTIFICACIÓN E INVERSA DE TRANSFORMADA DISCRETA DE COSENO SOBRE LA MATRIZ DE 8X8 PROCESADA
                                                     f_zig_zag();
                                                     f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                    //f_idct();
+                                                    f_idct();
                                                 }
                                             }
 
@@ -878,7 +752,7 @@ int main()
 
                                                         f_zig_zag();
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        //f_idct();
+                                                        f_idct();
                                                     }
                                                 }
                                             }
@@ -953,7 +827,7 @@ int main()
 
                                                         f_zig_zag();
                                                         f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        //f_idct();
+                                                        f_idct();
                                                     }
                                                 }
                                             }
@@ -1010,7 +884,7 @@ int main()
                             delete[] codigos_canonicos_10;
                             delete[] codigos_canonicos_11;
                             delete[] jpg_arr;
-
+                            
                             unsigned short ancho_8;
                             unsigned short alto_8;
 
@@ -1140,10 +1014,10 @@ int main()
                                 }
                             }
 
+                            std::vector<float>().swap(ffda_buff);
                             std::vector<float>().swap(rgb_entrada_y);
                             std::vector<float>().swap(rgb_entrada_cb);
                             std::vector<float>().swap(rgb_entrada_cr);
-                            std::vector<float>().swap(ffda_buff);
 
                             //REORDENA EN ESPEJO
                             if (byte_ornt == 0x01 || byte_ornt == 0x03)
@@ -1445,7 +1319,7 @@ int main()
                                     }
                                 }
 
-                                //INTERPOLACIÓN HORIZONTAL
+                                //INTERPOLACIÓN BICÚBICA HORIZONTAL
                                 for (unsigned short filas_y = 0; filas_y < alto_fin; filas_y++)
                                 {
                                     for (unsigned short columnas_x = 0; columnas_x < ancho_fin; columnas_x++)
@@ -1488,7 +1362,7 @@ int main()
                                     }
                                 }
 
-                                //INTERPOLACIÓN VERTICAL
+                                //INTERPOLACIÓN BICÚBICA VERTICAL
                                 for (unsigned short columnas_x = 0; columnas_x < ancho_fin; columnas_x++)
                                 {
                                     iter1 = columnas_x * 3, iter2 = columnas_x * 3;
@@ -1569,7 +1443,7 @@ int main()
                             {
                                 std::filesystem::remove("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp");
                             }
-                            
+
                             //ESCRIBIR ARREGLO FINAL EN ARCHIVO BMP Y CERRAR ARCHIVO 
                             std::ofstream bmp_arch("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp", std::ios::binary);
                             bmp_arch.write(bmp_salida.data(), bmp_salida.size());

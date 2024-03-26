@@ -448,6 +448,38 @@ int main()
                                 unsigned short num_ceros = 0;
                                 unsigned short nbits_cdos = 0;
 
+                                //FUNCIÓN DE INVERSA DE TRANSFORMADA DISCRETA DE COSENO
+                                std::function<void()> f_idct = [&ffda_buff]()
+                                {
+                                    float mtz_tmp[64];
+
+                                    for (unsigned short iter_idct = 0; iter_idct < 64; iter_idct++)
+                                    {
+                                        mtz_tmp[iter_idct] = ffda_buff[ffda_buff.size() - 64 + iter_idct];
+                                    }
+
+                                    for (unsigned short cord_y = 0; cord_y < 8; cord_y++)
+                                    {
+                                        for (unsigned short cord_x = 0; cord_x < 8; ++cord_x)
+                                        {
+                                            float p_sum = 0;
+
+                                            for (unsigned short cord_v = 0; cord_v < 8; cord_v++)
+                                            {
+                                                for (unsigned short cord_u = 0; cord_u < 8; cord_u++)
+                                                {
+                                                    float cu = (cord_v == 0) ? 1 / std::sqrt(2) : 1;
+                                                    float cv = (cord_u == 0) ? 1 / std::sqrt(2) : 1;
+
+                                                    p_sum += cu * cv * mtz_tmp[(cord_v * 8) + cord_u] * std::cos((2 * cord_y + 1) * cord_v * 3.141592 / 16) * std::cos((2 * cord_x + 1) * cord_u * 3.141592 / 16);
+                                                }
+                                            }
+
+                                            ffda_buff[(ffda_buff.size() - 64) + ((cord_y * 8) + cord_x)] = p_sum / 4;
+                                        }
+                                    }
+                                };
+                                
                                 //FUNCIÓN DE DECUANTIFICACIÓN
                                 std::function<void(unsigned short&, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short& cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
                                 {
@@ -464,40 +496,6 @@ int main()
                                         for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
                                         {
                                             ffda_buff[ffda_buff.size() - 64 + iter_tb] *= chr_tb[iter_tb];
-                                        }
-                                    }
-                                };
-                                
-                                //FUNCIÓN DE INVERSA DE TRANSFORMADA DISCRETA DE COSENO
-                                std::function<void()> f_idct = [&ffda_buff]()
-                                {
-                                    float mtz_tmp[64];
-
-                                    for (unsigned short iter_idct = 0; iter_idct < 64; iter_idct++)
-                                    {
-                                        mtz_tmp[iter_idct] = ffda_buff[ffda_buff.size() - 64 + iter_idct];
-                                    }
-
-                                    float p_sum, cu, cv;
-
-                                    for (unsigned short cord_x = 0; cord_x < 8; ++cord_x)
-                                    {
-                                        for (unsigned short cord_y = 0; cord_y < 8; ++cord_y)
-                                        {
-                                            p_sum = 0;
-
-                                            for (unsigned short cord_u = 0; cord_u < 8; ++cord_u)
-                                            {
-                                                for (unsigned short cord_v = 0; cord_v < 8; ++cord_v)
-                                                {
-                                                    cu = (cord_u == 0) ? sqrt(1.0f / 8) : sqrt(2.0f / 8);
-                                                    cv = (cord_v == 0) ? sqrt(1.0f / 8) : sqrt(2.0f / 8);
-
-                                                    p_sum += cu * cv * mtz_tmp[(cord_u * 8) + cord_v] * cos((2 * cord_x + 1) * cord_u * 3.141592 / 16) * cos((2 * cord_y + 1) * cord_v * 3.141592 / 16);
-                                                }
-                                            }
-
-                                            ffda_buff[(ffda_buff.size() - 64) + ((cord_x * 8) + cord_y)] = p_sum;
                                         }
                                     }
                                 };
@@ -887,7 +885,7 @@ int main()
                             
                             unsigned short ancho_8;
                             unsigned short alto_8;
-
+                            
                             //OBTENER DIMENSIONES DE IMAGEN DECODIFICADA
                             if ((ancho_in / 8) - short(ancho_in / 8) > 0)
                             {

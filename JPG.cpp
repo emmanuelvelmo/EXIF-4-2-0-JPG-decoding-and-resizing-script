@@ -1203,7 +1203,7 @@ int main()
                                     {
                                         for (unsigned short cont_rgb = 0; cont_rgb < 3; cont_rgb++)
                                         {
-                                            rgb_tmp[(filas_y * int(ancho_in) * 3) + (columnas_x * 3) + cont_rgb] = rgb_entrada[(filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb];
+                                            rgb_tmp[(filas_y * int(ancho_in) * 3) + (columnas_x * 3) + cont_rgb] = rgb_entrada[(ancho_8 * (alto_8 - int(alto_in)) * 3) + ((ancho_8 - int(ancho_in)) * 3) + (filas_y * ancho_8 * 3) + (columnas_x * 3) + cont_rgb];
                                         }
                                     }
                                 }

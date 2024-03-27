@@ -81,7 +81,7 @@ int main()
                     //REINTERPRETA PUNTERO PARA PODER LEER BYTES
                     unsigned char* jpg_reint = reinterpret_cast<unsigned char*>(jpg_arr);
 
-                    //SI LA IMAGEN POSEE THUMBNAIL, SALTA AL SEGUNDO MARCADOR
+                    //SI LA IMAGEN POSEE THUMBNAIL SALTA AL SEGUNDO MARCADOR
                     for (i = 0; i < jpg_size; i++)
                     {
                         if (jpg_reint[i] == 0xFF && jpg_reint[i + 1] == 0xC0 && jpg_reint[i + 2] == 0x00 && jpg_reint[i + 3] == 0x11)
@@ -168,7 +168,7 @@ int main()
                                 alto_aj -= 1;
                             }
 
-                            //OBTIENE POSICIONES DE MARCADOR
+                            //OBTIENE POSICIONES DE MARCADOR FFDB (INICIO Y FIN)
                             m = 0;
                             unsigned int db;
                             unsigned int db2;
@@ -198,6 +198,7 @@ int main()
                                 }
                             }
 
+                            //TABLAS DE CUANTIFICACIÓN DE LUMINANCIA Y CROMINANCIA
                             unsigned char lum_tb[64];
                             unsigned char chr_tb[64];
 
@@ -212,7 +213,7 @@ int main()
                             {
                                 chr_tb[z_z[m]] = jpg_reint[db + 70 + m];
                             }
-
+                            
                             //OBTENER POSICIONES DE MARCADOR FFC4 (INICIO Y FIN)
                             m = 0;
                             unsigned int c4;
@@ -243,7 +244,7 @@ int main()
                                 }
                             }
 
-                            //TABLAS HUFFVAL DE LUMINANCIA Y CROMINANCIA PARA COEFICIENTES AC Y DC
+                            //TABLAS HUFFVAL DE LUMINANCIA Y CROMINANCIA PARA COEFICIENTES AC Y DC  (INICIO Y FIN)
                             unsigned char dht_00[16];
                             std::string lum_dc_nod;
 
@@ -256,7 +257,7 @@ int main()
                             unsigned char dht_11[16];
                             std::string chr_ac_nod;
 
-                            //GUARDAR SÍMBOLOS EN TABLAS
+                            //GUARDAR SÍMBOLOS EN ARREGLOS
                             unsigned int i2 = 0;
                             unsigned short m2;
                             unsigned char ch_ch;
@@ -323,7 +324,7 @@ int main()
                                     }
                                 }
 
-                                //TABLA DC DE LUMINANCIA
+                                //TABLA AC DE CROMINANCIA
                                 m3 = 0;
                                 i2 = m4;
                                 for (m = 0; m < 16; m++)
@@ -426,7 +427,7 @@ int main()
                                 return inst_codigos;
                             };
 
-                            //ARREGLOS PARA ALMACENAR CÓDIGOS CANÓNICOS DE TABLAS DE LUMINANCIA Y CROMINANCIA Y VARIABLES DE CANTIDAD DE ELEMENTOS DE CADA TABLA
+                            //ARREGLOS PARA ALMACENAR CÓDIGOS CANÓNICOS DE TABLAS DE LUMINANCIA Y CROMINANCIA Y VARIABLES PARA LA CANTIDAD DE ELEMENTOS DE CADA TABLA
                             unsigned short tam_arr_00 = 0;
                             std::string* codigos_canonicos_00 = generar_canonicos(dht_00, tam_arr_00);
 
@@ -908,7 +909,7 @@ int main()
                             //SUBSAMPLING POR CAPAS
                             std::function<void(std::vector<float>&, unsigned short&, unsigned short&, unsigned short&, unsigned short&, bool&)> f_ycbcr = [&ffda_buff, &ancho_8, &alto_8](std::vector<float>& rgb_entrada2, unsigned short& n_coe2, unsigned short& pos_in2, unsigned short& cu_coe2, unsigned short& mcu_coe2, bool& bl_ssp2)
                             {
-                                //ALMACENA EN ARREGLO
+                                //ALMACENA CAPA EN ARREGLO
                                 for (unsigned int iter0 = 0; iter0 < ffda_buff.size() / 384; iter0++)
                                 {
                                     for (unsigned short iter1 = 0; iter1 < n_coe2; iter1++)

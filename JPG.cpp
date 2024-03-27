@@ -244,7 +244,7 @@ int main()
                                 }
                             }
 
-                            //TABLAS HUFFVAL DE LUMINANCIA Y CROMINANCIA PARA COEFICIENTES AC Y DC  (INICIO Y FIN)
+                            //TABLAS HUFFVAL DE LUMINANCIA Y CROMINANCIA PARA COEFICIENTES DC Y AC  (INICIO Y FIN)
                             unsigned char dht_00[16];
                             std::string lum_dc_nod;
 
@@ -442,7 +442,7 @@ int main()
 
                             std::vector<float> ffda_buff;
 
-                            //FUNCIÓN PARA DECODIFICAR SEGMENTO FFDA-FFD9
+                            //FUNCIÓN PARA DECODIFICAR SEGMENTO FFDA-FFD9 / DECODIFICACIÓN HUFFMAN
                             std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &z_z, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11, &lum_tb, &chr_tb]()
                             {
                                 //CONTADORES PARA RUN-LENGTH Y COMPLEMENTO A DOS
@@ -591,22 +591,27 @@ int main()
                                     }
                                 };
 
-                                //CONTADORES PARA BYTES, BITS, MATRIZ DE 64 COEFICIENTES, COMPLEMETO A DOS
+                                //POSICIÓN INICIAL DE BITSTREAM. CONTADORES PARA BITS, MCUS, COEFICIENTES AC, COMPLEMETO A DOS. VARIABLES PARA DECODIFICACIÓN DELTA. BUFFER PARA CÓDIGOS CANÓNICOS
                                 unsigned int da_2 = da;
+
                                 unsigned short cont_bit = 7;
                                 unsigned short cont_dcac = 0;
-                                bool bit_val = false;
-                                std::string buff_canonico;
-
-                                short cont_63 = 0;
-
-                                bool ev_comp_dos = false;
                                 unsigned short cont_nbits = 0;
+                                unsigned short cont_63 = 0;
+
+                                short delta_y = 0;
+                                short delta_cb = 0;
+                                short delta_cr = 0;
+
+                                bool bit_val = false;
+                                bool ev_comp_dos = false;
+
+                                std::string buff_canonico;
 
                                 //ITERA SEGMENTO FFDA-FFD9
                                 for (i = 0; i < 8 * (da2 - da - 13); i++)
                                 {
-                                    //SI SE APLICA COMPLEMENTO A DOS
+                                    //SI SE APLICA COMPLEMENTO A DOS PARA UNA CIFRA
                                     if (nbits_cdos > 0)
                                     {
                                         //SE ALMACENA EN BUFFER EL CÓDIGO CORRESPONDIENTE AL COMPLEMENTO A DOS EN LARGO DE BITS
@@ -619,12 +624,26 @@ int main()
                                         {
                                             short val_decimal = complemento_dos(buff_canonico);
 
-                                            //SE GUARDA EL VALOR DECIMAL COMO COEFICIENTE AC O DC
-                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192 || cont_dcac == 256 || cont_dcac == 320)
+                                            //SE GUARDA EL VALOR DECIMAL COMO COEFICIENTE DC / SE APLICA DECODIFICACIÓN DELTA PARA CADA CAPA
+                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192)
                                             {
-                                                ffda_buff.push_back(val_decimal);
+                                                delta_y += val_decimal;
+                                                ffda_buff.push_back(delta_y);
                                             }
 
+                                            if (cont_dcac == 256)
+                                            {
+                                                delta_cb += val_decimal;
+                                                ffda_buff.push_back(delta_cb);
+                                            }
+
+                                            if (cont_dcac == 320)
+                                            {
+                                                delta_cr += val_decimal;
+                                                ffda_buff.push_back(delta_cr);
+                                            }
+
+                                            //SE GUARDA EL VALOR DECIMAL COMO COEFICIENTE AC
                                             if (cont_dcac > 0 && cont_dcac < 64 || cont_dcac > 64 && cont_dcac < 128 || cont_dcac > 128 && cont_dcac < 192 || cont_dcac > 192 && cont_dcac < 256 || cont_dcac > 256 && cont_dcac < 320 || cont_dcac > 320 && cont_dcac < 384)
                                             {
                                                 ffda_buff.push_back(val_decimal);
@@ -661,7 +680,7 @@ int main()
                                             cont_bit--;
                                         }
 
-                                        //CONSIDERA FF0000 COMO SALTO DE BYTE (SEGUNDO BYTE 00)
+                                        //CONSIDERA FF0000 COMO SALTO DE TERCER BYTE (BYTE 00)
                                         if (cont_bit == 7 && jpg_reint[da_2 + 13] == 0xFF && jpg_reint[da_2 + 14] == 0x00)
                                         {
                                             da_2++;
@@ -673,7 +692,7 @@ int main()
                                             cont_dcac = 0;
                                         }
                                     }
-                                    //SI NO SE APLICA COMPLEMENTO A DOS
+                                    //SI NO SE APLICA COMPLEMENTO A DOS SE ALMACENAN BITS EN BUFFER, SE AGREGAN CEROS A MATRICES
                                     else
                                     {
                                         //SE ALMACENA EN UN BUFFER EL CÓDIGO CANÓNICO DECODIFICADO HASTA ENCONTRAR COINCIDENCIA EN LA TABLA QUE CORRESPONDA
@@ -682,169 +701,184 @@ int main()
 
                                         bool comprobar_buff = false;
 
-                                        //SI EL CONTADOR CAE EN UN COEFICIENTE AC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA AC DE LUMINANCIA
-                                        if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192)
+                                        if (buff_canonico.size() > 1)
                                         {
-                                            //SE RECORREN LAS TABLAS CORRESPONDIENTES
-                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_00; iter_dcac++)
+                                            //SI EL CONTADOR CAE EN UN COEFICIENTE DC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA DC DE LUMINANCIA
+                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192)
                                             {
-                                                //SI SE ENCUENTRA LA TABLA CORRESPONDIENTE
-                                                if (buff_canonico == codigos_canonicos_00[iter_dcac])
+                                                //SE RECORREN LAS TABLAS CORRESPONDIENTES
+                                                for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_00; iter_dcac++)
                                                 {
-                                                    //SE SEPARA EL DÍGITO EN DOS NÚMEROS Y SE ASIGNAN SUS VALORES A LOS CONTADORES DE RUN-LENGTH Y COMPLEMENTO A DOS
-                                                    nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
-
-                                                    comprobar_buff = true;
-
-                                                    //SI NO SE APLICA COMPLEMENTO A DOS SÓLO SE GUARDARÁ EL VALOR DEL SÍMBOLO POSTERIORMENTE
-                                                    if (nbits_cdos == 0)
+                                                    //SI SE ENCUENTRA LA TABLA CORRESPONDIENTE
+                                                    if (buff_canonico == codigos_canonicos_00[iter_dcac])
                                                     {
-                                                        ev_comp_dos = true;
+                                                        //SE CONVIERTE EL SÍMBOLO A VALOR DECIMAL PARA EL NÚMERO DE BITS PARA COMPLEMENTO A DOS
+                                                        nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
+
+                                                        //EL BUFFER HA SIDO UTILIZADO
+                                                        comprobar_buff = true;
+
+                                                        //SI EL SÍMBOLO ES 00 EL COEFICIENTE DC CONSERVARÁ EL MISMO VALOR QUE EL COEFICIENTE DC DE LA MATRIZ ANTERIOR
+                                                        if (nbits_cdos == 0)
+                                                        {
+                                                            ev_comp_dos = true;
+                                                        }
                                                     }
+                                                }
+
+                                                //SI SE HA UTILIZADO EL BUFFER SE LIMPIA PARA SU REUTILIZACIÓN
+                                                if (comprobar_buff == true)
+                                                {
+                                                    std::string().swap(buff_canonico);
                                                 }
                                             }
 
-                                            if (comprobar_buff == true)
+                                            //SI EL CONTADOR CAE EN UN COEFICIENTE AC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA AC DE LUMINANCIA
+                                            if (cont_dcac > 0 && cont_dcac < 64 || cont_dcac > 64 && cont_dcac < 128 || cont_dcac > 128 && cont_dcac < 192 || cont_dcac > 192 && cont_dcac < 256)
                                             {
-                                                std::string().swap(buff_canonico);
-                                            }
-                                        }
-
-                                        //SI EL CONTADOR CAE EN UN COEFICIENTE DC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA DC DE LUMINANCIA
-                                        if (cont_dcac > 0 && cont_dcac < 64 || cont_dcac > 64 && cont_dcac < 128 || cont_dcac > 128 && cont_dcac < 192 || cont_dcac > 192 && cont_dcac < 256)
-                                        {
-                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_10; iter_dcac++)
-                                            {
-                                                if (buff_canonico == codigos_canonicos_10[iter_dcac])
+                                                for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_10; iter_dcac++)
                                                 {
-                                                    sep_digs(lum_ac_nod[iter_dcac]);
-
-                                                    //SI EL SÍMBOLO ES 00 SE LLENA EL RESTO DE LA MATRIZ (END OF BLOCK))
-                                                    if (num_ceros == 0 && nbits_cdos == 0)
+                                                    if (buff_canonico == codigos_canonicos_10[iter_dcac])
                                                     {
-                                                        for (cont_63; cont_63 < 63; cont_63++)
+                                                        //SE SEPARA EL DÍGITO EN DOS NÚMEROS Y SE ASIGNAN SUS VALORES A LOS CONTADORES DE RUN-LENGTH Y COMPLEMENTO A DOS
+                                                        sep_digs(lum_ac_nod[iter_dcac]);
+
+                                                        //SI EL SÍMBOLO ES 00 SE LLENA EL RESTO DE LA MATRIZ (END OF BLOCK))
+                                                        if (num_ceros == 0 && nbits_cdos == 0)
                                                         {
-                                                            ffda_buff.push_back(0);
+                                                            for (cont_63; cont_63 < 63; cont_63++)
+                                                            {
+                                                                ffda_buff.push_back(0);
 
-                                                            cont_dcac++;
-                                                        }
-                                                    }
-
-                                                    if (num_ceros > 0)
-                                                    {
-                                                        for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
-                                                        {
-                                                            ffda_buff.push_back(0);
-
-                                                            cont_dcac++;
-                                                            cont_63++;
+                                                                cont_dcac++;
+                                                            }
                                                         }
 
-                                                        num_ceros = 0;
+                                                        //SE RELLENA CON LA CANTIDAD DE CEROS ESPECIFICADA
+                                                        if (num_ceros > 0)
+                                                        {
+                                                            for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
+                                                            {
+                                                                ffda_buff.push_back(0);
+
+                                                                cont_dcac++;
+                                                                cont_63++;
+                                                            }
+
+                                                            num_ceros = 0;
+                                                        }
+
+                                                        comprobar_buff = true;
+
+                                                        if (cont_63 == 63)
+                                                        {
+                                                            cont_63 = 0;
+
+                                                            f_zig_zag();
+                                                            f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                            f_idct();
+                                                        }
                                                     }
+                                                }
 
-                                                    comprobar_buff = true;
-
-                                                    if (cont_63 == 63)
-                                                    {
-                                                        cont_63 = 0;
-
-                                                        f_zig_zag();
-                                                        f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        f_idct();
-                                                    }
+                                                if (comprobar_buff == true)
+                                                {
+                                                    std::string().swap(buff_canonico);
                                                 }
                                             }
 
-                                            if (comprobar_buff == true)
+                                            //SI EL CONTADOR CAE EN UN COEFICIENTE DC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA DC DE CROMINANCIA
+                                            if (cont_dcac == 256 || cont_dcac == 320)
                                             {
-                                                std::string().swap(buff_canonico);
-                                            }
-                                        }
-
-                                        //SI EL CONTADOR CAE EN UN COEFICIENTE AC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA AC DE CROMINANCIA
-                                        if (cont_dcac == 256 || cont_dcac == 320)
-                                        {
-                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_01; iter_dcac++)
-                                            {
-                                                if (buff_canonico == codigos_canonicos_01[iter_dcac])
+                                                for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_01; iter_dcac++)
                                                 {
-                                                    nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
-
-                                                    comprobar_buff = true;
-
-                                                    if (nbits_cdos == 0)
+                                                    if (buff_canonico == codigos_canonicos_01[iter_dcac])
                                                     {
-                                                        ev_comp_dos = true;
+                                                        nbits_cdos = static_cast<unsigned short>(lum_dc_nod[iter_dcac]);
+
+                                                        comprobar_buff = true;
+
+                                                        if (nbits_cdos == 0)
+                                                        {
+                                                            ev_comp_dos = true;
+                                                        }
                                                     }
+                                                }
+
+                                                if (comprobar_buff == true)
+                                                {
+                                                    std::string().swap(buff_canonico);
                                                 }
                                             }
 
-                                            if (comprobar_buff == true)
+                                            //SI EL CONTADOR CAE EN UN COEFICIENTE AC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA AC DE CROMINANCIA
+                                            if (cont_dcac > 256 && cont_dcac < 320 || cont_dcac > 320 && cont_dcac < 384)
                                             {
-                                                std::string().swap(buff_canonico);
-                                            }
-                                        }
-
-                                        //SI EL CONTADOR CAE EN UN COEFICIENTE DC SE USA EL SÍMBOLO ASOCIADO DE LA TABLA DC DE CROMINANCIA
-                                        if (cont_dcac > 256 && cont_dcac < 320 || cont_dcac > 320 && cont_dcac < 384)
-                                        {
-                                            for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_11; iter_dcac++)
-                                            {
-                                                if (buff_canonico == codigos_canonicos_11[iter_dcac])
+                                                for (unsigned int iter_dcac = 0; iter_dcac < tam_arr_11; iter_dcac++)
                                                 {
-                                                    sep_digs(chr_ac_nod[iter_dcac]);
-
-                                                    if (num_ceros == 0 && nbits_cdos == 0)
+                                                    if (buff_canonico == codigos_canonicos_11[iter_dcac])
                                                     {
-                                                        for (cont_63; cont_63 < 63; cont_63++)
+                                                        sep_digs(chr_ac_nod[iter_dcac]);
+
+                                                        if (num_ceros == 0 && nbits_cdos == 0)
                                                         {
-                                                            ffda_buff.push_back(0);
+                                                            for (cont_63; cont_63 < 63; cont_63++)
+                                                            {
+                                                                ffda_buff.push_back(0);
 
-                                                            cont_dcac++;
-                                                        }
-                                                    }
-
-                                                    if (num_ceros > 0)
-                                                    {
-                                                        for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
-                                                        {
-                                                            ffda_buff.push_back(0);
-
-                                                            cont_dcac++;
-                                                            cont_63++;
+                                                                cont_dcac++;
+                                                            }
                                                         }
 
-                                                        num_ceros = 0;
-                                                    }
+                                                        if (num_ceros > 0)
+                                                        {
+                                                            for (unsigned short bit_cont = 0; bit_cont < num_ceros; bit_cont++)
+                                                            {
+                                                                ffda_buff.push_back(0);
 
-                                                    comprobar_buff = true;
+                                                                cont_dcac++;
+                                                                cont_63++;
+                                                            }
 
-                                                    if (cont_63 == 63)
-                                                    {
-                                                        cont_63 = 0;
+                                                            num_ceros = 0;
+                                                        }
 
-                                                        f_zig_zag();
-                                                        f_dqt(cont_dcac, lum_tb, chr_tb);
-                                                        f_idct();
+                                                        comprobar_buff = true;
+
+                                                        if (cont_63 == 63)
+                                                        {
+                                                            cont_63 = 0;
+
+                                                            f_zig_zag();
+                                                            f_dqt(cont_dcac, lum_tb, chr_tb);
+                                                            f_idct();
+                                                        }
                                                     }
                                                 }
-                                            }
 
-                                            if (comprobar_buff == true)
-                                            {
-                                                std::string().swap(buff_canonico);
+                                                if (comprobar_buff == true)
+                                                {
+                                                    std::string().swap(buff_canonico);
+                                                }
                                             }
                                         }
 
-                                        //SI NO SE APLICA COMPLEMENTO A DOS SE CONVIERTE E SÍMBOLO A DECIMAL Y SE GUARDA COMO COEFICIENTE AC
+                                        //SE CONSERVA EL MISMO VALOR DEL COEFICIENTE DC ANTERIOR SEGÚN SU CAPA
                                         if (ev_comp_dos == true)
                                         {
-                                            short val_decimal = complemento_dos(buff_canonico);
-
-                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192 || cont_dcac == 256 || cont_dcac == 320)
+                                            if (cont_dcac == 0 || cont_dcac == 64 || cont_dcac == 128 || cont_dcac == 192)
                                             {
-                                                ffda_buff.push_back(val_decimal);
+                                                ffda_buff.push_back(delta_y);
+                                            }
+
+                                            if (cont_dcac == 256)
+                                            {
+                                                ffda_buff.push_back(delta_cb);
+                                            }
+
+                                            if (cont_dcac == 320)
+                                            {
+                                                ffda_buff.push_back(delta_cr);
                                             }
 
                                             ev_comp_dos = false;
@@ -1118,7 +1152,7 @@ int main()
                             }
 
                             //CONVERSIÓN RGB
-                            /*for (unsigned int iter_conv = 0; iter_conv < rgb_entrada.size() / 3; iter_conv++)
+                            for (unsigned int iter_conv = 0; iter_conv < rgb_entrada.size() / 3; iter_conv++)
                             {
                                 float conv_R = rgb_entrada[iter_conv * 3] + 1.402f * rgb_entrada[(iter_conv * 3) + 2] + 128;
                                 float conv_G = rgb_entrada[iter_conv * 3] - 0.344f * rgb_entrada[(iter_conv * 3) + 1] - 0.714f * rgb_entrada[(iter_conv * 3) + 2] + 128;
@@ -1134,7 +1168,7 @@ int main()
                                 rgb_entrada[iter_conv * 3] = conv_B;
                                 rgb_entrada[(iter_conv * 3) + 1] = conv_G;
                                 rgb_entrada[(iter_conv * 3) + 2] = conv_R;
-                            }*/
+                            }
 
                             //REORDENAR DIMENSIONES
                             if (byte_ornt == 0x06 || byte_ornt == 0x08)

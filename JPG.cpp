@@ -168,52 +168,6 @@ int main()
                                 alto_aj -= 1;
                             }
 
-                            //OBTIENE POSICIONES DE MARCADOR FFDB (INICIO Y FIN)
-                            m = 0;
-                            unsigned int db;
-                            unsigned int db2;
-                            for (db = 0; db < jpg_size; db++)
-                            {
-                                if (jpg_reint[db] == 0xFF && jpg_reint[db + 1] == 0xDB && jpg_reint[db + 2] == 0x00 && jpg_reint[db + 3] == 0x84)
-                                {
-                                    m++;
-
-                                    if (m == 2)
-                                    {
-                                        db2 = db + 2;
-
-                                        while (true)
-                                        {
-                                            if (jpg_reint[db2] == 0xFF && jpg_reint[db2 + 1] == 0xC0 && jpg_reint[db2 + 2] == 0x00 && jpg_reint[db2 + 3] == 0x11)
-                                            {
-                                                db2--;
-                                                break;
-                                            }
-
-                                            db2++;
-                                        }
-
-                                        break;
-                                    }
-                                }
-                            }
-
-                            //TABLAS DE CUANTIFICACIÓN DE LUMINANCIA Y CROMINANCIA
-                            unsigned char lum_tb[64];
-                            unsigned char chr_tb[64];
-
-                            unsigned short z_z[64] = { 0, 1, 8, 16, 9, 2, 3, 10, 17, 24, 32, 25, 18, 11, 4, 5, 12, 19, 26, 33, 40, 48, 41, 34, 27, 20, 13, 6, 7, 14, 21, 28, 35, 42, 49, 56, 57, 50, 43, 36, 29, 22, 15, 23, 30, 37, 44, 51, 58, 59, 52, 45, 38, 31, 39, 46, 53, 60, 61, 54, 47, 55, 62, 63 };
-
-                            for (m = 0; m < 64; m++)
-                            {
-                                lum_tb[z_z[m]] = jpg_reint[db + 5 + m];
-                            }
-
-                            for (m = 0; m < 64; m++)
-                            {
-                                chr_tb[z_z[m]] = jpg_reint[db + 70 + m];
-                            }
-                            
                             //OBTENER POSICIONES DE MARCADOR FFC4 (INICIO Y FIN)
                             m = 0;
                             unsigned int c4;
@@ -443,7 +397,7 @@ int main()
                             std::vector<float> ffda_buff;
 
                             //FUNCIÓN PARA DECODIFICAR SEGMENTO FFDA-FFD9 / DECODIFICACIÓN HUFFMAN
-                            std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &z_z, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11, &lum_tb, &chr_tb]()
+                            std::function<void()> decod_ffda = [&i, &da, &da2, &jpg_reint, &ffda_buff, &codigos_canonicos_00, &lum_dc_nod, &tam_arr_00, &codigos_canonicos_01, &chr_dc_nod, &tam_arr_01, &codigos_canonicos_10, &lum_ac_nod, &tam_arr_10, &codigos_canonicos_11, &chr_ac_nod, &tam_arr_11]()
                             {
                                 //CONTADORES PARA RUN-LENGTH Y COMPLEMENTO A DOS
                                 unsigned short num_ceros = 0;
@@ -477,26 +431,6 @@ int main()
                                             }
 
                                             ffda_buff[(ffda_buff.size() - 64) + ((cord_y * 8) + cord_x)] = p_sum / 4;
-                                        }
-                                    }
-                                };
-                                
-                                //FUNCIÓN DE DECUANTIFICACIÓN
-                                std::function<void(unsigned short&, unsigned char(&)[64], unsigned char(&)[64])> f_dqt = [&ffda_buff](unsigned short& cont_dcac, const unsigned char(&lum_tb)[64], const unsigned char(&chr_tb)[64])
-                                {
-                                    if (cont_dcac >= 0 && cont_dcac <= 255)
-                                    {
-                                        for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
-                                        {
-                                            ffda_buff[ffda_buff.size() - 64 + iter_tb] *= lum_tb[iter_tb];
-                                        }
-                                    }
-
-                                    if (cont_dcac >= 256 && cont_dcac <= 383)
-                                    {
-                                        for (unsigned short iter_tb = 0; iter_tb < 64; iter_tb++)
-                                        {
-                                            ffda_buff[ffda_buff.size() - 64 + iter_tb] *= chr_tb[iter_tb];
                                         }
                                     }
                                 };
@@ -657,7 +591,6 @@ int main()
 
                                                     //SE REALIZA ZIG ZAG INVERSO, DECUANTIFICACIÓN E INVERSA DE TRANSFORMADA DISCRETA DE COSENO SOBRE LA MATRIZ DE 8X8 PROCESADA
                                                     f_zig_zag();
-                                                    f_dqt(cont_dcac, lum_tb, chr_tb);
                                                     f_idct();
                                                 }
                                             }
@@ -775,7 +708,6 @@ int main()
                                                             cont_63 = 0;
 
                                                             f_zig_zag();
-                                                            f_dqt(cont_dcac, lum_tb, chr_tb);
                                                             f_idct();
                                                         }
                                                     }
@@ -850,7 +782,6 @@ int main()
                                                             cont_63 = 0;
 
                                                             f_zig_zag();
-                                                            f_dqt(cont_dcac, lum_tb, chr_tb);
                                                             f_idct();
                                                         }
                                                     }

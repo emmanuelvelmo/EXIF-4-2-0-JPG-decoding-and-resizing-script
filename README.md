@@ -51,7 +51,7 @@
 </p>
 
 <p align="left">
-  <strong>Input Image (JPG)</strong>
+  <strong>Input Image (JPG) (4032×2268)</strong>
   <br/>
   <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/f922a55b-9399-49bd-9265-76edfd54cea1"/>
 </p>
@@ -69,7 +69,7 @@
 </p>
 
 <p align="left">
-  <strong>RGB conversion / output Image (BMP)</strong>
+  <strong>RGB conversion / output Image (BMP) (1920×1080)</strong>
   <br/>
   <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/9d7c2e43-1118-4a8e-8447-0026c1c11fde"/>
 </p>

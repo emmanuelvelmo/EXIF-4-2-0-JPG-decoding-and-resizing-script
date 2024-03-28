@@ -26,7 +26,7 @@ int main()
         std::filesystem::create_directory("C:/Users/" + n_usr + "/Desktop/gallerydir/");
     }
 
-    std::cout << "Store all images in the folder 'gallerydir' in the Desktop and press any key to continue\n";
+    std::cout << "Please store all JPG files in the 'gallerydir' folder on the Desktop and press any key to continue\n";
     system("pause");
 
     if (std::filesystem::is_directory("C:/Users/" + n_usr + "/Desktop/gallerydir/"))
@@ -848,10 +848,10 @@ int main()
                             delete[] codigos_canonicos_10;
                             delete[] codigos_canonicos_11;
                             delete[] jpg_arr;
-                            
+
                             unsigned short ancho_8;
                             unsigned short alto_8;
-                            
+
                             //OBTENER DIMENSIONES DE IMAGEN DECODIFICADA
                             if ((ancho_in / 8) - short(ancho_in / 8) > 0)
                             {
@@ -1436,7 +1436,7 @@ int main()
 
             if (n == 0)
             {
-                std::cout << "No jpg files with dimensions greater or smaller than 1920x1080 were found\n";
+                std::cout << "No JPG files with dimensions greater or smaller than 1920x1080 were found\n";
             }
         }
         else
@@ -1446,7 +1446,7 @@ int main()
                 std::filesystem::remove_all("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/");
             }
 
-            std::cout << "No jpg files found\n";
+            std::cout << "No JPG files were found\n";
         }
 
         if (n == 1)

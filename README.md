@@ -49,3 +49,27 @@
   
   FFD9 - EOI (End of Image)
 </p>
+
+<p align="left">
+  <strong>Input Image (JPG)</strong>
+  <br/>
+  <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/f922a55b-9399-49bd-9265-76edfd54cea1"/>
+</p>
+
+<p align="left">
+  <strong>Huffman decoding + subsampling</strong>
+  <br/>
+  <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/9a07853f-8041-4f8b-88c4-6896399e6cbd"/>
+</p>
+
+<p align="left">
+  <strong>Inverse discrete cosine transform</strong>
+  <br/>
+  <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/2a52c6cd-0645-4e7c-9c68-fe100888fdc8"/>
+</p>
+
+<p align="left">
+  <strong>Output Image (BMP)</strong>
+  <br/>
+  <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/9d7c2e43-1118-4a8e-8447-0026c1c11fde"/>
+</p>

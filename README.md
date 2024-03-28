@@ -69,7 +69,7 @@
 </p>
 
 <p align="left">
-  <strong>Output Image (BMP)</strong>
+  <strong>RGB conversion / output Image (BMP)</strong>
   <br/>
   <img src="https://github.com/emmanuelvelmo/EXIF-4-2-0-JPG-decoding-and-resizing-script/assets/51292782/9d7c2e43-1118-4a8e-8447-0026c1c11fde"/>
 </p>

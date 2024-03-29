@@ -1418,9 +1418,9 @@ int main()
                                 std::filesystem::remove(dcim_dir.path().string());
                             }
 
-                            //MOSTRAR IMAGEN PROCESADA EN CONSOLA
                             std::filesystem::rename("C:/Users/" + n_usr + "/Desktop/gallerydir/tmpfdr/tmpimg.bmp", "C:/Users/" + n_usr + "/Desktop/gallerydir/" + dcim_dir.path().stem().string() + ".bmp");
 
+                            //MOSTRAR IMAGEN PROCESADA EN CONSOLA
                             std::cout << dcim_dir.path().string() + "\n";
 
                             n++;

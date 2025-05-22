@@ -1,3 +1,6 @@
+#EXIF 4:2:0 JPG decoding and resizing script
+Simple example of how to decode a JPG image and nearest neighbor interpolation
+
 <p align="left">
   <strong>About this script (tested on Android's Samsung smartphones JPG images)</strong>
   <br/>
